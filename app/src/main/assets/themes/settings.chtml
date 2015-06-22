@@ -1,0 +1,52 @@
+{!--
+  - CatSaver
+  - Copyright (C) 2015 HiHex Ltd.
+  -
+  - This program is free software: you can redistribute it and/or modify it under
+  - the terms of the GNU General Public License as published by the Free Software
+  - Foundation, either version 3 of the License, or (at your option) any later
+  - version.
+  -
+  - This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  - WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  - PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License along with
+  - this program.  If not, see <http://www.gnu.org/licenses/>.
+  -
+  --}
+<!DOCTYPE html>
+<title>CatSaver</title>
+<meta charset="utf-8">
+<link rel="shortcut icon" type="image/png" href="/static/favicon.png">
+<link rel="stylesheet" type="text/css" href="/static/styles.css">
+<form action="/update-settings" method="post">
+<p>{.r.settings_prompt_filter}:
+<blockquote>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#sum" target=_blank>{.r.java_regex}</a>)
+<input type=text name=filter value="{$filter|html:&#94;&#40;com\.)?hihex\.}" class=regex-input required> </blockquote>
+<p>{.r.settings_prompt_purge}:
+<ul>
+<li>
+    <input type=checkbox class=purge-checkbox name=purge-by-filesize id=purge-by-filesize{.if ($filesize != -1)} checked{/if}>
+    <label for=purge-by-filesize>{.r.settings_prompt_purge_by_filesize}</label>
+    <input type=number name=filesize min=1 max=8796093022207
+     {% if ($filesize == -1) %}
+        value=100 disabled
+     {% else %}
+        value="{$filesize|qcalc(/1048576)}"
+     {% endif %}
+    > {.r.mebibytes}
+<li>
+    <input type=checkbox class=purge-checkbox name=purge-by-date id=purge-by-date{.if ($date != -1)} checked{/if}>
+    <label for=purge-by-date>{.r.settings_prompt_purge_by_date}</label>
+    <input type=number name=date min=1 max=106751991167
+    {% if ($date == -1) %}
+        value=7 disabled
+    {% else %}
+        value="{$date|qcalc(/86400000)}"
+    {% endif %}
+    > {.r.days_ago}
+</ul>
+<p><input type=submit value="{.r.settings_save}">
+</form>
+<script src="/static/settings.js"></script>

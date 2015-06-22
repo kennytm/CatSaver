@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ CatSaver
+  ~ 版权所有 (C) 2015 艾合石科技有限公司
+  ~
+  ~ 本程序为自由软件，在自由软件联盟发布的GNU通用公共许可协议的约束下，你可以对其进
+  ~ 行再发布及修改。协议版本为第三版或（随你）更新的版本。
+  ~
+  ~ 我们希望发布的这款程序有用，但不保证，甚至不保证它有经济价值和适合特定用途。详
+  ~ 情参见GNU通用公共许可协议。
+  ~
+  ~ 你理当已收到一份GNU通用公共许可协议的副本，如果没有，请查阅
+  ~ <http://www.gnu.org/licenses/>。
+  -->
+
+<resources>
+    <string name="server_prompt_pre">请到</string>
+    <string name="server_prompt_post">下载错误记录</string>
+    <string name="perm_prompt_pre">无法阅读错误记录！请运行</string>
+    <string name="perm_prompt_post">给予权限，然後重新打开此程序。</string>
+    <string name="try_to_grant">尝试授权</string>
+
+    <string name="running_hint">正在收集错误记录…</string>
+    <string name="stopping_hint">停止收集错误记录</string>
+
+    <string name="chunk_log_files">现存记录</string>
+    <string name="chunk_file">文件</string>
+    <string name="chunk_last_modified">最后更新</string>
+    <string name="chunk_file_size">大小</string>
+    <string name="chunk_actions">动作</string>
+    <string name="chunk_nothing_logged_yet">没有任何记录</string>
+    <string name="chunk_total_size_occupied">总容量</string>
+    <string name="chunk_running_processes">所有进程</string>
+    <string name="chunk_process_name">进程</string>
+    <string name="chunk_recording">记录中</string>
+
+    <string name="chunk_start_time">开始记录时间</string>
+    <string name="chunk_version">版本</string>
+    <string name="chunk_build">内部版本</string>
+    <string name="chunk_machine">机型</string>
+    <string name="chunk_ip_addresses">IP位址</string>
+    <string name="chunk_time">时间</string>
+    <string name="chunk_level">严重性</string>
+    <string name="chunk_tag">标签</string>
+    <string name="chunk_message">讯息</string>
+
+    <string name="chunk_confirm_start">确定开始记录“%s”?</string>
+    <string name="chunk_confirm_stop">确定停止记录“%s”?\\n\\n注意，现时的记录文件会被关闭。若重新记录这个进程，将会保存新的文件。</string>
+    <string name="chunk_confirm_delete">确定删除“%s”?</string>
+
+    <string name="chunk_build_brand">品牌</string>
+    <string name="chunk_build_product">产品</string>
+    <string name="chunk_build_manufacturer">制造商</string>
+    <string name="chunk_build_device">设备</string>
+    <string name="chunk_build_model">型号</string>
+    <string name="chunk_build_board">主版</string>
+    <string name="chunk_build_release">操作系统版本</string>
+
+    <string name="chunk_hint_stop">停止记录</string>
+    <string name="chunk_hint_delete">删除</string>
+    <string name="chunk_hint_download">下载</string>
+    <string name="chunk_hint_download_apk">下载APK</string>
+
+
+    <string name="chunk_settings_prompt_filter">进程名称如下时自动开始记录</string>
+    <string name="chunk_settings_prompt_purge">符合下列条件时清除旧记录</string>
+    <string name="chunk_settings_prompt_purge_by_filesize">总容量超过</string>
+    <string name="chunk_settings_prompt_purge_by_date">最后更新在</string>
+    <string name="chunk_java_regex">Java regex</string>
+    <string name="chunk_settings_save">保存</string>
+    <string name="chunk_mebibytes">MB</string>
+    <string name="chunk_days_ago">天前</string>
+    <string name="chunk_kibibytes_format">%.1fKB</string>
+    <string name="chunk_back_to_settings">回到设置</string>
+    <string name="chunk_settings">设置</string>
+</resources>

@@ -1,0 +1,57 @@
+/*
+ * CatSaver
+ * Copyright (C) 2015 HiHex Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "hihex.cs"
+        minSdkVersion 16
+        targetSdkVersion 22
+        versionCode 1
+        versionName "0.1.0"
+    }
+
+    signingConfigs {
+        aosp {
+            // Keystore constructed using http://stackoverflow.com/a/14035885/
+            storeFile file("aosp.keystore")
+            storePassword "android"
+            keyAlias "platform"
+            keyPassword "android"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.aosp
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.nanohttpd:nanohttpd:2.1.1'             // HTTP web server
+    compile 'com.google.guava:guava:18.0'               // Various utilities
+    compile 'com.x5dev:chunk-templates:2.6.3'           // HTML templating
+}

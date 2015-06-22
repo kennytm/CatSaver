@@ -1,0 +1,74 @@
+{!--
+  - CatSaver
+  - Copyright (C) 2015 HiHex Ltd.
+  -
+  - This program is free software: you can redistribute it and/or modify it under
+  - the terms of the GNU General Public License as published by the Free Software
+  - Foundation, either version 3 of the License, or (at your option) any later
+  - version.
+  -
+  - This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  - WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  - PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License along with
+  - this program.  If not, see <http://www.gnu.org/licenses/>.
+  -
+  --}
+<!DOCTYPE html>
+<title>CatSaver</title>
+<meta charset="utf-8">
+<link rel="shortcut icon" type="image/png" href="/static/favicon.png">
+<link rel="stylesheet" type="text/css" href="/static/styles.css">
+<p><a href="/settings"><span class=command>&#x2699;</span> {.r.settings}</a>
+<hr>
+<h2>{.r.log_files}</h2>
+<table id=filelist>
+<thead>
+<tr><th>{.r.file}<th>{.r.last_modified}<th>{.r.file_size}<th>{.r.actions}
+<tbody>
+{% loop in $files as $f %}
+<tr>
+<td><a href="/read/{$f.file_name|html}">{$f.file_name|html}</a>
+<td>{$f.last_modified|relative_time}
+<td>{$f.file_size|file_size}
+<td>
+{% if ($f.pid) %}
+    <a class="command needs-confirm" data-confirm="stop,{$f.process_name|html}" href="/stop/{$f.pid}" title="{.r.hint_stop}">&#x274e;</a>
+{% else %}
+    <a class="command needs-confirm" data-confirm="del,{$f.file_name|html}" href="/delete/{$f.file_name|html}" title="{.r.hint_delete}">&#x1f6ab;</a>
+{% endif %}
+    <a class=command href="/download/{$f.file_name|html}" title="{.r.hint_download}" download>&#x1f4e5;</a>
+{% onEmpty %}
+<tr><td colspan=4>{.r.nothing_logged_yet}
+{% endloop %}
+</table>
+<p>{.r.total_size_occupied}: <strong>{$total_size|file_size}</strong>.
+<hr>
+<h2>{.r.running_processes}</h2>
+<table id=pidlist>
+<thead>
+<tr><th>PID<th>{.r.process_name}<th>{.r.recording}
+<tbody>
+{% loop in $processes as $p %}
+<tr>
+<td>{$p.pid}
+<td>{$p.name}
+<td><input type=checkbox class=needs-confirm data-pid="{$p.pid}"
+{% if ($p.recording) %}
+    checked data-confirm="stop,{$p.name|html}"
+{% else %}
+    data-confirm="start,{$p.name|html}"
+{% endif %}
+>
+{% onEmpty %}
+{% endloop %}
+</table>
+<script>
+var confirmMessages = {
+    start: '{.r.confirm_start}',
+    stop: '{.r.confirm_stop}',
+    del: '{.r.confirm_delete}',
+};
+</script>
+<script src="/static/index.js"></script>

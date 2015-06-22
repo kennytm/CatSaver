@@ -1,0 +1,81 @@
+<!--
+  ~ CatSaver
+  ~ Copyright (C) 2015 HiHex Ltd.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify it under
+  ~ the terms of the GNU General Public License as published by the Free Software
+  ~ Foundation, either version 3 of the License, or (at your option) any later
+  ~ version.
+  ~
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~ PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with
+  ~ this program.  If not, see <http://www.gnu.org/licenses/>.
+  ~
+  -->
+
+<resources>
+    <string name="app_name" translatable="false">CatSaver</string>
+    <string name="server_prompt_pre">You may access the saved logs from</string>
+    <string name="server_prompt_post"/>
+    <string name="perm_prompt_pre">We cannot read LogCat! Please grant permission with</string>
+    <string name="perm_prompt_post">and restart this app.</string>
+    <string name="perm_command" translatable="false">adb shell pm grant hihex.cs android.permission.READ_LOGS</string>
+    <string name="try_to_grant">Try to Grant</string>
+    
+    <string name="running_hint">Collecting logs…</string>
+    <string name="stopping_hint">Stop collecting logs</string>
+
+    <string name="chunk_log_files">Log files</string>
+    <string name="chunk_file">File</string>
+    <string name="chunk_last_modified">Last modified</string>
+    <string name="chunk_file_size">Size</string>
+    <string name="chunk_actions">Actions</string>
+    <string name="chunk_nothing_logged_yet">Nothing logged yet</string>
+    <string name="chunk_total_size_occupied">Total size occupied</string>
+    <string name="chunk_running_processes">Running processes</string>
+    <string name="chunk_process_name">Process</string>
+    <string name="chunk_recording">Rec</string>
+
+    <string name="chunk_start_time">Start time</string>
+    <string name="chunk_version">Version</string>
+    <string name="chunk_build">Build</string>
+    <string name="chunk_machine">Machine</string>
+    <string name="chunk_ip_addresses">IP addresses</string>
+    <string name="chunk_time">Time</string>
+    <string name="chunk_level">Level</string>
+    <string name="chunk_tag">Tag</string>
+    <string name="chunk_message">Message</string>
+
+    <string name="chunk_confirm_start">Start recording “%s”?</string>
+    <string name="chunk_confirm_stop">Stop recording “%s”?\\n\\nNote that the current file will be closed, and future recordings of the same process will be saved to a new file.</string>
+    <string name="chunk_confirm_delete">Delete “%s”?</string>
+
+    <string name="chunk_build_brand">Brand</string>
+    <string name="chunk_build_product">Product</string>
+    <string name="chunk_build_manufacturer">Manufacturer</string>
+    <string name="chunk_build_device">Device</string>
+    <string name="chunk_build_model">Model</string>
+    <string name="chunk_build_board">Board</string>
+    <string name="chunk_build_release">Android version</string>
+
+    <string name="chunk_hint_stop">Stop recording</string>
+    <string name="chunk_hint_delete">Delete</string>
+    <string name="chunk_hint_download">Download</string>
+    <string name="chunk_hint_download_apk">Download APK</string>
+
+    <string name="chunk_settings_prompt_filter">Automatically record logs when process name is</string>
+    <string name="chunk_settings_prompt_purge">Remove old logs when</string>
+    <string name="chunk_settings_prompt_purge_by_filesize">total size is more than</string>
+    <string name="chunk_settings_prompt_purge_by_date">last modified is older than</string>
+    <string name="chunk_settings_save">Save settings</string>
+    <string name="chunk_java_regex">Java regex</string>
+    <string name="chunk_mebibytes">MB</string>
+    <string name="chunk_days_ago">days ago</string>
+    <string name="chunk_kibibytes_format">%.1fKB</string>
+
+    <string name="chunk_back_to_settings">Back to settings</string>
+    <string name="chunk_settings">Settings</string>
+</resources>

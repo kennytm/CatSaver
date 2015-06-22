@@ -1,0 +1,85 @@
+{!--
+  - CatSaver
+  - Copyright (C) 2015 HiHex Ltd.
+  -
+  - This program is free software: you can redistribute it and/or modify it under
+  - the terms of the GNU General Public License as published by the Free Software
+  - Foundation, either version 3 of the License, or (at your option) any later
+  - version.
+  -
+  - This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  - WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  - PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License along with
+  - this program.  If not, see <http://www.gnu.org/licenses/>.
+  -
+  --}
+
+{#prefix}
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="shortcut icon" type="image/png" href="/static/favicon.png">
+<title>LogCat dump of {$process}</title>
+<style>
+{!-- Note that the styles are inline since this page should look nice when loaded alone --}
+body { font-family: sans-serif; }
+span[title] { text-decoration: underline; text-decoration-style: dotted; }
+table { width: 100%; table-layout: fixed; border-collapse: collapse; }
+#metadata th { text-align: right; width: 8em; padding: 0px 5px; }
+hr { border-style: dotted hidden hidden; color: #ccc; }
+td { vertical-align: top; border: 1px solid #eee; word-break: break-all; }
+#logcat th { text-align: left; }
+#logcat th:nth-child(1) { width: 7.5em; }
+#logcat th:nth-child(2) { width: 12em; }
+#logcat th:nth-child(3) { width: 8em; }
+#logcat td:nth-child(2)::first-letter { font-family: monospace; }
+pre { margin: 0; }
+.F { color: #f00; }
+.E { color: #900; }
+.W { color: #660; }
+.I { color: #009; }
+.D { color: #060; }
+.V { color: #999; }
+.embed pre { margin: 1em; border: 1px dashed #ccc; padding: 5px; background: #ffe; }
+</style>
+<table id=metadata>
+<tr><th>{.r.start_time}<td>{$date}
+<tr><th>{.r.process_name}<td>{$process|html} (PID {$pid})
+<tr><th>{.r.version}<td>v{$version:???|html} ({.r.build} {$version_code:???})
+<tr><th>{.r.machine}<td>
+<span title="{.r.build_brand}">{$build.brand}</span> /
+<span title="{.r.build_product}">{$build.product}</span> /
+<span title="{.r.build_manufacturer}">{$build.manufacturer}</span> /
+<span title="{.r.build_device}">{$build.device}</span> /
+<span title="{.r.build_model}">{$build.model}</span> /
+<span title="{.r.build_board}">{$build.board}</span> /
+<span title="{.r.build_release}">{$build.release}</span> {$build.abi} (API {$build.api_level})
+<tr><th>{.r.ip_addresses}<td>{$addresses}
+</table>
+<p><a href="/apk/{$process|html}">{.r.hint_download_apk}</a>
+<hr>
+<table id=logcat>
+<thead><tr>
+<th>{.r.time}<th>{.r.level}/{.r.tag}<th>(PID/TID)<th>{.r.message}
+<tbody>
+{#}
+
+{#entry}
+<tr class="{$log_level}">
+<td>{$date}<td>{$log_level}/{$tag|html}<td>({$pid}{.if ($pid != $tid)}/{$tid}{/if})
+<td><pre>{$message|html}</pre>
+{#}
+
+{#anr_entry_prefix}
+<tr class=embed><td colspan=4><pre>
+{#}
+
+{#anr_entry_suffix}
+</pre>
+{#}
+
+{#suffix}
+</table>
+{#}
+
