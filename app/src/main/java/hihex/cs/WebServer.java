@@ -234,7 +234,9 @@ final class WebServer extends NanoHTTPD {
             final ApplicationInfo info = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
             final String apkPath = info.sourceDir;
             final FileInputStream stream = new FileInputStream(apkPath);
-            return new Response(Response.Status.OK, "application/vnd.android.package-archive", stream);
+            final Response resp = new Response(Response.Status.OK, "application/vnd.android.package-archive", stream);
+            resp.addHeader("Content-Disposition", "attachment; filename=" + packageName + ".apk");
+            return resp;
         } catch (final PackageManager.NameNotFoundException e) {
             return serve404();
         } catch (final FileNotFoundException e) {
