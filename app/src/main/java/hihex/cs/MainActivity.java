@@ -20,10 +20,13 @@ package hihex.cs;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.*;
+import android.os.Bundle;
 import android.os.Process;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.TextView;
 
@@ -50,12 +53,12 @@ public final class MainActivity extends Activity {
             @Override
             public void run() {
                 GrantPermission.tryGrantPermission();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        recreate();
-                    }
-                });
+                final AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+                final Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                final PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+                final long alarmTime = SystemClock.elapsedRealtime() + 1000;
+                alarm.set(AlarmManager.ELAPSED_REALTIME, alarmTime, pendingIntent);
+                Process.killProcess(Process.myPid());
             }
         }).start();
     }
