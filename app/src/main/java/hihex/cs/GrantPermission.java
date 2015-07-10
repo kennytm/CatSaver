@@ -43,7 +43,7 @@ public final class GrantPermission {
      * Try to grant this package the READ_LOGS permission using various (legitimate) methods. There is no guarantee this
      * will succeed &mdash; you still have to use {@link android.content.Context#checkCallingOrSelfPermission(String)
      * checkCallingOrSelfPermission()} to ensure you have got the correct permissions.
-     *
+     * <p/>
      * <p>This method will run external programs and access sockets, so it must not be called in the main thread.</p>
      */
     public static void tryGrantPermission() {

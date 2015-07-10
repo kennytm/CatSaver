@@ -58,8 +58,12 @@ public final class LogRecorder implements Runnable {
         final Runtime runtime = Runtime.getRuntime();
         try {
             // Clean up all previous logcat processes if we are restarted. See http://stackoverflow.com/q/16173387/.
-            final Process killLogcatProcess = runtime.exec(new String[]{"killall", "-2", "logcat"});
-            killLogcatProcess.waitFor();
+            try {
+                final Process killLogcatProcess = runtime.exec(new String[]{"killall", "-2", "logcat"});
+                killLogcatProcess.waitFor();
+            } catch (final IOException e) {
+                // Ignore if we can't kill existing logcat. It's just minor annoyance.
+            }
 
             // Clear old log, to avoid overwriting existing files.
             final Process clearProcess = runtime.exec(new String[]{"logcat", "-c"});
