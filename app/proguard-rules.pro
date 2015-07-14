@@ -3,6 +3,13 @@
 -dontwarn javax.inject.**
 -dontwarn sun.misc.Unsafe
 
+-keepattributes RuntimeVisibleAnnotations
+-keep @interface com.google.common.eventbus.Subscribe
+
+-keepclassmembers,allowobfuscation class * {
+    @com.google.common.eventbus.Subscribe public void *(**);
+}
+
 ###### Chunk
 -dontwarn sun.misc.BASE64Decoder
 -dontwarn sun.misc.BASE64Encoder
