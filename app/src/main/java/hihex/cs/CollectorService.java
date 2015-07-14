@@ -29,6 +29,7 @@ import java.io.IOException;
 public final class CollectorService extends Service {
     private Thread mLogCollectorThread;
     private WebServer mWebServer;
+    private RecIndicator mRecIndicator;
 
     @Override
     public IBinder onBind(final Intent intent) {
@@ -68,12 +69,16 @@ public final class CollectorService extends Service {
         mLogCollectorThread.start();
 
         Toast.makeText(this, R.string.running_hint, Toast.LENGTH_LONG).show();
+
+        // Show the recording indicator
+        mRecIndicator = new RecIndicator(config);
     }
 
     @Override
     public void onDestroy() {
         Toast.makeText(this, R.string.stopping_hint, Toast.LENGTH_LONG).show();
         mLogCollectorThread = null;
+        mRecIndicator = null;
         if (mWebServer != null) {
             mWebServer.stop();
             mWebServer = null;

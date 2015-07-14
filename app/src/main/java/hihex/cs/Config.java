@@ -25,6 +25,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
+import com.google.common.eventbus.EventBus;
 import com.x5.template.Chunk;
 import com.x5.template.Theme;
 
@@ -45,6 +46,7 @@ public final class Config {
     public static final String SHARED_PREFS_FILTER_KEY = "filter";
     public static final String SHARED_PREFS_PURGE_FILESIZE_KEY = "purge_filesize";
     public static final String SHARED_PREFS_PURGE_DURATION_KEY = "purge_duration";
+    public static final String SHARED_PREFS_SHOW_INDICATOR_KEY = "show_indicator";
 
     //{{{ Fixed configuration. These cannot be modified by anyone.
 
@@ -57,6 +59,8 @@ public final class Config {
      * The theme that provides the Chunk templates.
      */
     public final Theme theme;
+
+    public final EventBus recordCountEventBus = new EventBus("Record Count");
 
     /**
      * The preferences.
@@ -121,7 +125,14 @@ public final class Config {
         return mPurgeDuration;
     }
 
-    public void updateSettings(final Pattern filter, final long purgeFilesize, long purgeDuration) {
+    public boolean shouldShowIndicator() {
+        return sharedPreferences.getBoolean(SHARED_PREFS_SHOW_INDICATOR_KEY, true);
+    }
+
+    public void updateSettings(final Pattern filter,
+                               final long purgeFilesize,
+                               final long purgeDuration,
+                               final boolean shouldShowIndicator) {
         mFilter = filter;
         mPurgeFilesize = purgeFilesize;
         mPurgeDuration = purgeDuration;
@@ -129,8 +140,10 @@ public final class Config {
         editor.putString(SHARED_PREFS_FILTER_KEY, filter.pattern());
         editor.putLong(SHARED_PREFS_PURGE_FILESIZE_KEY, purgeFilesize);
         editor.putLong(SHARED_PREFS_PURGE_DURATION_KEY, purgeDuration);
+        editor.putBoolean(SHARED_PREFS_SHOW_INDICATOR_KEY, shouldShowIndicator);
         editor.apply();
         removeExpiredLogs();
+        recordCountEventBus.post(shouldShowIndicator);
     }
 
     public void refreshPids() {
@@ -178,6 +191,7 @@ public final class Config {
             }
             writeHeader(writer, pid, proc, timestamp);
         }
+        recordCountEventBus.post(mPidDatabase.countRecordingEntries());
         return optWriter;
     }
 
@@ -194,6 +208,7 @@ public final class Config {
                 return null;
             }
         });
+        recordCountEventBus.post(mPidDatabase.countRecordingEntries());
     }
 
     private void writeHeader(final Writer writer, final int pid, final String processName, final Date timestamp)

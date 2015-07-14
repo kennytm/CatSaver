@@ -230,4 +230,14 @@ public final class PidDatabase {
             mEntries.set(index, newEntry);
         }
     }
+
+    public int countRecordingEntries() {
+        int count = 0;
+        for (final PidEntry entry : mEntries) {
+            if (entry.writer.isPresent()) {
+                count += 1;
+            }
+        }
+        return count;
+    }
 }
