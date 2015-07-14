@@ -52,6 +52,7 @@ public final class CollectorService extends Service {
 
         // Prepare the configuration.
         final Config config = new Config(this);
+        config.refreshPids();
 
         // Start the web server
         mWebServer = new WebServer(config);
