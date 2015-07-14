@@ -27,6 +27,7 @@ import com.x5.template.ContentSource;
 import com.x5.template.Snippet;
 import com.x5.template.Theme;
 import com.x5.template.filters.BasicFilter;
+import com.x5.template.filters.FilterArgs;
 import com.x5.template.providers.AndroidTemplates;
 
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public final class ChunkTheme {
         }
 
         @Override
-        public String transformText(final Chunk chunk, final String text, final String[] args) {
+        public String transformText(final Chunk chunk, final String text, final FilterArgs args) {
             try {
                 final long fileSize = Long.parseLong(text);
                 if (fileSize < 1024) {
@@ -74,7 +75,7 @@ public final class ChunkTheme {
         }
 
         @Override
-        public String transformText(final Chunk chunk, final String text, final String[] args) {
+        public String transformText(final Chunk chunk, final String text, final FilterArgs args) {
             try {
                 final long milliseconds = Long.parseLong(text);
                 final long transition = 3 * DateUtils.DAY_IN_MILLIS;

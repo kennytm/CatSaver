@@ -26,8 +26,8 @@ android {
         applicationId "hihex.cs"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 1
-        versionName "0.1.0"
+        versionCode 2
+        versionName "0.2.0"
     }
 
     signingConfigs {
@@ -53,5 +53,5 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.nanohttpd:nanohttpd:2.1.1'             // HTTP web server
     compile 'com.google.guava:guava:18.0'               // Various utilities
-    compile 'com.x5dev:chunk-templates:2.6.3'           // HTML templating
+    compile 'com.x5dev:chunk-templates:3.0.0'           // HTML templating
 }
