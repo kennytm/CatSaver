@@ -21,6 +21,7 @@ package hihex.cs;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 import android.widget.Toast;
 
@@ -43,12 +44,18 @@ public final class CollectorService extends Service {
         // Put the service in "foreground". This makes the system harder to kill it (?).
         final CharSequence title = getResources().getString(R.string.app_name);
         final CharSequence detail = getResources().getString(R.string.running_hint);
-        final Notification notification = new Notification.Builder(this)
+
+        final Notification.Builder notificationBuilder = new Notification.Builder(this)
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle(title)
-                .setContentText(detail)
-                .setPriority(Notification.PRIORITY_LOW)
-                .build();
+                .setContentText(detail);
+
+        final Notification notification;
+        if (Build.VERSION.SDK_INT >= 16) {
+            notification = notificationBuilder.setPriority(Notification.PRIORITY_LOW).build();
+        } else {
+            notification = notificationBuilder.getNotification();
+        }
         startForeground(1, notification);
 
         // Prepare the configuration.

@@ -77,7 +77,12 @@ final class LogEntry {
     public void read(final InputStream stream) throws IOException {
         ByteStreams.readFully(stream, mSharedArray, 0, 4);
         mPayloadLength = mSharedBuffer.getShort(0);
-        final int headerLength = Math.max(mSharedBuffer.getShort(2), 20);
+        int headerLength = mSharedBuffer.getShort(2);
+        if (headerLength != 24) {
+            // FIXME In logger_entry(_v1) the __pad can be filled with garbage. We don't know if we are targeting v1 or
+            //       not. Maybe do an actual ioctl() check in the future.
+            headerLength = 20;
+        }
         ByteStreams.readFully(stream, mSharedArray, 0, headerLength - 4);
         mPid = mSharedBuffer.getInt(0);
         mTid = mSharedBuffer.getInt(4);
