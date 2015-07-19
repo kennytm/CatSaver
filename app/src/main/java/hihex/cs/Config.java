@@ -60,7 +60,7 @@ public final class Config {
      */
     public final Theme theme;
 
-    public final EventBus recordCountEventBus = new EventBus("Record Count");
+    public final EventBus eventBus = new EventBus();
 
     /**
      * The preferences.
@@ -143,7 +143,7 @@ public final class Config {
         editor.putBoolean(SHARED_PREFS_SHOW_INDICATOR_KEY, shouldShowIndicator);
         editor.apply();
         removeExpiredLogs();
-        recordCountEventBus.post(shouldShowIndicator);
+        eventBus.post(new Events.RecordIndicatorVisibility(shouldShowIndicator));
     }
 
     public void refreshPids() {
@@ -191,7 +191,7 @@ public final class Config {
             }
             writeHeader(writer, pid, proc, timestamp);
         }
-        recordCountEventBus.post(mPidDatabase.countRecordingEntries());
+        eventBus.post(new Events.RecordCount(mPidDatabase.countRecordingEntries()));
         return optWriter;
     }
 
@@ -208,7 +208,7 @@ public final class Config {
                 return null;
             }
         });
-        recordCountEventBus.post(mPidDatabase.countRecordingEntries());
+        eventBus.post(new Events.RecordCount(mPidDatabase.countRecordingEntries()));
     }
 
     private void writeHeader(final Writer writer, final int pid, final String processName, final Date timestamp)
