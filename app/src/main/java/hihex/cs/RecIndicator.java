@@ -27,7 +27,9 @@ import com.google.common.eventbus.Subscribe;
 
 public final class RecIndicator {
     private final TextView mTextView;
+    private final TextView mIpView;
     private final View mRootView;
+    private final View mBackgroundView;
     private final Handler mMainThreadHandler;
 
     @SuppressLint("InflateParams")
@@ -35,7 +37,10 @@ public final class RecIndicator {
         final Context context = config.context.getApplicationContext();
         mRootView = LayoutInflater.from(context).inflate(R.layout.rec_indicator, null);
         mTextView = (TextView) mRootView.findViewById(R.id.rec_count);
+        mIpView = (TextView) mRootView.findViewById(R.id.rec_ip);
+        mBackgroundView = mRootView.findViewById(R.id.rec_bg);
         mTextView.setText("0");
+        mIpView.setText(IpAddresses.getBestIpAddress());
         createFloatingWindow(context);
         mMainThreadHandler = new Handler();
         config.eventBus.register(this);
@@ -65,7 +70,7 @@ public final class RecIndicator {
             @Override
             public void run() {
                 mTextView.setText(String.valueOf(count));
-                mTextView.setBackgroundResource(count == 0 ? R.color.rec_off : R.color.rec_on);
+                mBackgroundView.setBackgroundResource(count == 0 ? R.color.rec_off : R.color.rec_on);
             }
         });
     }
@@ -77,6 +82,16 @@ public final class RecIndicator {
             @Override
             public void run() {
                 mRootView.setVisibility(visibility);
+            }
+        });
+    }
+
+    public void updateIpAddress() {
+        final String bestIpAddress = IpAddresses.getBestIpAddress();
+        mMainThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mIpView.setText(bestIpAddress);
             }
         });
     }

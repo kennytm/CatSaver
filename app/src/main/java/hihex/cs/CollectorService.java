@@ -20,7 +20,11 @@ package hihex.cs;
 
 import android.app.Notification;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.widget.Toast;
@@ -31,6 +35,7 @@ public final class CollectorService extends Service {
     private Thread mLogCollectorThread;
     private WebServer mWebServer;
     private RecIndicator mRecIndicator;
+    private BroadcastReceiver mIpChangeReceiver;
 
     @Override
     public IBinder onBind(final Intent intent) {
@@ -79,6 +84,7 @@ public final class CollectorService extends Service {
 
         // Show the recording indicator
         mRecIndicator = new RecIndicator(config);
+        monitorIpAddress();
     }
 
     @Override
@@ -90,6 +96,25 @@ public final class CollectorService extends Service {
             mWebServer.stop();
             mWebServer = null;
         }
+        if (mIpChangeReceiver != null) {
+            unregisterReceiver(mIpChangeReceiver);
+            mIpChangeReceiver = null;
+        }
         super.onDestroy();
+    }
+
+    private void monitorIpAddress() {
+        mIpChangeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final RecIndicator recIndicator = mRecIndicator;
+                if (recIndicator != null) {
+                    recIndicator.updateIpAddress();
+                }
+            }
+        };
+        final IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(mIpChangeReceiver, filter);
     }
 }

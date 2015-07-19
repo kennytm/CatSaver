@@ -19,7 +19,7 @@
   -->
 
 <resources>
-    <color name="rec_off">#66ff9999</color>
-    <color name="rec_on">#6699ff99</color>
+    <color name="rec_off">#ffff9999</color>
+    <color name="rec_on">#ff99ff99</color>
     <color name="rec_text_color">#99000000</color>
 </resources>
