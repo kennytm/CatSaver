@@ -47,6 +47,7 @@ public final class Config {
     public static final String SHARED_PREFS_PURGE_FILESIZE_KEY = "purge_filesize";
     public static final String SHARED_PREFS_PURGE_DURATION_KEY = "purge_duration";
     public static final String SHARED_PREFS_SHOW_INDICATOR_KEY = "show_indicator";
+    public static final String SHARED_PREFS_RUN_ON_BOOT_KEY = "run_on_boot";
 
     //{{{ Fixed configuration. These cannot be modified by anyone.
 
@@ -96,6 +97,10 @@ public final class Config {
 
     //}}}
 
+    private static SharedPreferences getSharedPreferences(final Context context) {
+        return context.getSharedPreferences("default", Context.MODE_PRIVATE);
+    }
+
     public Config(final Context context) {
         logFolder = new File(context.getFilesDir(), "logs");
         logFolder.mkdir();
@@ -103,7 +108,7 @@ public final class Config {
         this.context = context;
         mPackageManager = context.getPackageManager();
         theme = ChunkTheme.create(context);
-        sharedPreferences = context.getSharedPreferences("default", Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(context);
         final String filter = sharedPreferences.getString(SHARED_PREFS_FILTER_KEY, "^(com\\.)?hihex\\.");
         mFilter = Pattern.compile(filter);
         mPurgeFilesize = sharedPreferences.getLong(SHARED_PREFS_PURGE_FILESIZE_KEY, -1);
@@ -129,10 +134,20 @@ public final class Config {
         return sharedPreferences.getBoolean(SHARED_PREFS_SHOW_INDICATOR_KEY, true);
     }
 
+    public static boolean shouldRunOnBoot(final Context context) {
+        final SharedPreferences sharedPreferences = getSharedPreferences(context);
+        return sharedPreferences.getBoolean(SHARED_PREFS_RUN_ON_BOOT_KEY, true);
+    }
+
+    public boolean shouldRunOnBoot() {
+        return sharedPreferences.getBoolean(SHARED_PREFS_RUN_ON_BOOT_KEY, true);
+    }
+
     public void updateSettings(final Pattern filter,
                                final long purgeFilesize,
                                final long purgeDuration,
-                               final boolean shouldShowIndicator) {
+                               final boolean shouldShowIndicator,
+                               final boolean shouldRunOnBoot) {
         mFilter = filter;
         mPurgeFilesize = purgeFilesize;
         mPurgeDuration = purgeDuration;
@@ -141,6 +156,7 @@ public final class Config {
         editor.putLong(SHARED_PREFS_PURGE_FILESIZE_KEY, purgeFilesize);
         editor.putLong(SHARED_PREFS_PURGE_DURATION_KEY, purgeDuration);
         editor.putBoolean(SHARED_PREFS_SHOW_INDICATOR_KEY, shouldShowIndicator);
+        editor.putBoolean(SHARED_PREFS_RUN_ON_BOOT_KEY, shouldRunOnBoot);
         editor.apply();
         removeExpiredLogs();
         eventBus.post(new Events.RecordIndicatorVisibility(shouldShowIndicator));

@@ -26,8 +26,8 @@ android {
         applicationId "hihex.cs"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 3
-        versionName "0.2.1"
+        versionCode 4
+        versionName "0.2.2"
     }
 
     signingConfigs {

@@ -71,6 +71,7 @@
     <string name="chunk_settings_prompt_purge_by_filesize">total size is more than</string>
     <string name="chunk_settings_prompt_purge_by_date">last modified is older than</string>
     <string name="chunk_settings_show_indicator">Show on-screen indicator that CatSaver is running</string>
+    <string name="chunk_settings_run_on_boot">Run CatSaver when the machine boots up</string>
     <string name="chunk_settings_save">Save settings</string>
     <string name="chunk_java_regex">Java regex</string>
     <string name="chunk_mebibytes">MB</string>

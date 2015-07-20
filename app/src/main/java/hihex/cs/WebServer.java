@@ -250,6 +250,7 @@ final class WebServer extends NanoHTTPD {
         chunk.put("filesize", String.valueOf(mConfig.getPurgeFilesize()));
         chunk.put("date", String.valueOf(mConfig.getPurgeDuration()));
         chunk.put("show_indicator", String.valueOf(mConfig.shouldShowIndicator()));
+        chunk.put("run_on_boot", String.valueOf(mConfig.shouldRunOnBoot()));
         return new Response(chunk.toString());
     }
 
@@ -263,6 +264,7 @@ final class WebServer extends NanoHTTPD {
             final long filesize;
             final long duration;
             final boolean shouldShowIndictor = "on".equals(parameters.get("show-indicator"));
+            final boolean shouldRunOnBoot = "on".equals(parameters.get("run-on-boot"));
             if ("on".equals(parameters.get("purge-by-filesize"))) {
                 filesize = Math.max(1, Long.parseLong(parameters.get("filesize")) * 1048576);
             } else {
@@ -273,7 +275,7 @@ final class WebServer extends NanoHTTPD {
             } else {
                 duration = -1;
             }
-            mConfig.updateSettings(filter, filesize, duration, shouldShowIndictor);
+            mConfig.updateSettings(filter, filesize, duration, shouldShowIndictor, shouldRunOnBoot);
             return serveRedirect("Settings updated", "/");
         } catch (final PatternSyntaxException e) {
             return serveInvalidSettingError("Invalid filter syntax", e);

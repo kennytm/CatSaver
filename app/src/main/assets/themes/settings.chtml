@@ -49,6 +49,8 @@
 </ul>
 <p><input type=checkbox name=show-indicator id=show-indicator {$show_indicator|checked(true)}>
    <label for=show-indicator>{.r.settings_show_indicator}</label>
+<p><input type=checkbox name=run-on-boot id=run-on-boot {$run_on_boot|checked(true)}>
+   <label for=run-on-boot>{.r.settings_run_on_boot}</label>
 <p><input type=submit value="{.r.settings_save}">
 </form>
 <script src="/static/settings.js"></script>

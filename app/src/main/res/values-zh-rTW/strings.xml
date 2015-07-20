@@ -67,6 +67,7 @@
     <string name="chunk_settings_prompt_purge_by_filesize">總容量超過</string>
     <string name="chunk_settings_prompt_purge_by_date">最後更新在</string>
     <string name="chunk_settings_show_indicator">在螢幕顯示CatSaver正在執行的提示</string>
+    <string name="chunk_settings_run_on_boot">開機時自動執行CatSaver</string>
     <string name="chunk_settings_save">儲存</string>
     <string name="chunk_java_regex">Java regex</string>
     <string name="chunk_mebibytes">MB</string>
