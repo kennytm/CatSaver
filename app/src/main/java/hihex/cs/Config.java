@@ -109,7 +109,7 @@ public final class Config {
         mPackageManager = context.getPackageManager();
         theme = ChunkTheme.create(context);
         sharedPreferences = getSharedPreferences(context);
-        final String filter = sharedPreferences.getString(SHARED_PREFS_FILTER_KEY, "^(com\\.)?hihex\\.");
+        final String filter = sharedPreferences.getString(SHARED_PREFS_FILTER_KEY, "^(com\\.)?hihex\\.(?!cs$)");
         mFilter = Pattern.compile(filter);
         mPurgeFilesize = sharedPreferences.getLong(SHARED_PREFS_PURGE_FILESIZE_KEY, -1);
         mPurgeDuration = sharedPreferences.getLong(SHARED_PREFS_PURGE_DURATION_KEY, -1);
@@ -318,6 +318,22 @@ public final class Config {
         files.entries().removeAll(filesToKeep.entries());
         for (final File file : files.values()) {
             file.delete();
+        }
+    }
+
+    public final void startRecordingExistingProcesses() {
+        final Date now = new Date();
+        final Pattern filter = getFilter();
+        for (final HashMap<String, String> entry : mPidDatabase.runningProcesses()) {
+            final String name = entry.get("name");
+            if (filter.matcher(name).find() && !entry.containsKey("recording")) {
+                final int pid = Integer.parseInt(entry.get("pid"));
+                try {
+                    startRecording(pid, Optional.of(name), now);
+                } catch (final IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

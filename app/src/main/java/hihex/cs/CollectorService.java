@@ -75,16 +75,19 @@ public final class CollectorService extends Service {
             CsLog.e("Cannot start web-server. " + e);
         }
 
+        // Show the recording indicator
+        mRecIndicator = new RecIndicator(config);
+        monitorIpAddress();
+
+        // Start collecting logs for existing processes.
+        config.startRecordingExistingProcesses();
+
         // Start collecting logs
         final LogRecorder runnable = new LogRecorder(config);
         mLogCollectorThread = new Thread(runnable, "Log collector");
         mLogCollectorThread.start();
 
         Toast.makeText(this, R.string.running_hint, Toast.LENGTH_LONG).show();
-
-        // Show the recording indicator
-        mRecIndicator = new RecIndicator(config);
-        monitorIpAddress();
     }
 
     @Override
