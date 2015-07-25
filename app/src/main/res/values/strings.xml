@@ -80,4 +80,8 @@
 
     <string name="chunk_back_to_settings">Back to settings</string>
     <string name="chunk_settings">Settings</string>
+
+    <string name="chunk_filter_settings">Filters</string>
+    <string name="chunk_settings_log_filter">Log content filter</string>
+    <string name="chunk_settings_log_filter_use_default">Default</string>
 </resources>

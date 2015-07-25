@@ -42,7 +42,7 @@ public final class LogRecorder implements Runnable {
     private final Chunk mLogEntryChunk;
     private final Chunk mLogAnrEntryPrefixChunk;
     private final Chunk mLogAnrEntrySuffixChunk;
-    private int mDebuggedPid = -1;
+    private int[] mDebuggedPids = Config.EMPTY_PID_ARRAY;
 
     public LogRecorder(final Config config) {
         mConfig = config;
@@ -86,14 +86,21 @@ public final class LogRecorder implements Runnable {
                     handleDebuggerdLog(entry);
                 }
 
-                final Optional<Writer> optWriter = mConfig.getWriter(pid);
-                if (optWriter.isPresent()) {
-                    final Writer writer = optWriter.get();
-                    writeLogEntry(writer, entry);
-                    if (entry.isJniCrash()) {
-                        mDebuggedPid = pid;
-                    } else if (entry.isAnr()) {
-                        writeAnrTraces(writer, pid);
+                final int[] writeToPids = mConfig.getFilteredPidsForLog(entry, pid);
+                if (entry.isJniCrash()) {
+                    mDebuggedPids = writeToPids;
+                }
+                for (final int targetPid : writeToPids) {
+                    final Optional<Writer> optWriter = mConfig.getWriter(targetPid);
+                    if (optWriter.isPresent()) {
+                        final Writer writer = optWriter.get();
+                        writeLogEntry(writer, entry);
+                        if (entry.isAnr()) {
+                            writeAnrTraces(writer, pid);
+                            if (pid != targetPid) {
+                                writeAnrTraces(writer, targetPid);
+                            }
+                        }
                     }
                 }
             }
@@ -117,19 +124,20 @@ public final class LogRecorder implements Runnable {
     }
 
     private void handleDebuggerdLog(final LogEntry entry) throws IOException {
-        if (mDebuggedPid == -1) {
+        if (mDebuggedPids.length == 0) {
             return;
         }
 
-        final Optional<Writer> writer = mConfig.getWriter(mDebuggedPid);
-        if (writer.isPresent()) {
-            writeLogEntry(writer.get(), entry);
-            if (!entry.isJniCrashLogEnded()) {
-                return;
+        for (final int pid : mDebuggedPids) {
+            final Optional<Writer> writer = mConfig.getWriter(pid);
+            if (writer.isPresent()) {
+                writeLogEntry(writer.get(), entry);
             }
         }
 
-        mDebuggedPid = -1;
+        if (entry.isJniCrashLogEnded()) {
+            mDebuggedPids = Config.EMPTY_PID_ARRAY;
+        }
     }
 
     private void createProcess(final LogEntry entry, final int pid, final String processName) throws IOException {

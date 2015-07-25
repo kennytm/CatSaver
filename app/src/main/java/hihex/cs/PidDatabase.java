@@ -32,8 +32,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public final class PidDatabase {
@@ -231,7 +233,7 @@ public final class PidDatabase {
         }
     }
 
-    public int countRecordingEntries() {
+    public synchronized int countRecordingEntries() {
         int count = 0;
         for (final PidEntry entry : mEntries) {
             if (entry.writer.isPresent()) {
@@ -239,5 +241,15 @@ public final class PidDatabase {
             }
         }
         return count;
+    }
+
+    public synchronized Set<String> listRecordingProcessNames() {
+        final HashSet<String> result = new HashSet<>();
+        for (final PidEntry entry : mEntries) {
+            if (entry.writer.isPresent()) {
+                result.add(entry.processName);
+            }
+        }
+        return result;
     }
 }

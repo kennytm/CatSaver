@@ -110,8 +110,8 @@ final class LogEntry {
         return mSharedArray[0];
     }
 
-    public char logLevelChar() {
-        switch (logLevel()) {
+    public static char logLevelChar(final int logLevel) {
+        switch (logLevel) {
             case Log.ASSERT:
                 return 'F';
             case Log.ERROR:
@@ -127,6 +127,10 @@ final class LogEntry {
             default:
                 return '?';
         }
+    }
+
+    public char logLevelChar() {
+        return logLevelChar(logLevel());
     }
 
     public String tag() {

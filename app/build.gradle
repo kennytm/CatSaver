@@ -27,7 +27,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 4
-        versionName "0.2.2"
+        versionName "0.3.0"
     }
 
     signingConfigs {
@@ -50,8 +50,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.nanohttpd:nanohttpd:2.1.1'             // HTTP web server
     compile 'com.google.guava:guava:18.0'               // Various utilities
     compile 'com.x5dev:chunk-templates:3.0.0'           // HTML templating
+    compile 'com.moandjiezana.toml:toml4j:0.4.0'        // Filter specification
 }

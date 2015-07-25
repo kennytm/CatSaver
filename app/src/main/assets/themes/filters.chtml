@@ -16,10 +16,18 @@
   -
   --}
 <!DOCTYPE html>
-<title>Invalid setting</title>
+<title>CatSaver</title>
 <meta charset="utf-8">
 <link rel="shortcut icon" type="image/png" href="/static/favicon.png">
 <link rel="stylesheet" type="text/css" href="/static/styles.css">
-<h1>{$title}</h1>
-<pre>{$message}</pre>
-<p><a href="/{$source}">← {.r.back_to_settings}</a>
+<form action="/update-filter-settings" method="post">
+<p>{.r.settings_prompt_filter}:
+<blockquote>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#sum" target=_blank>{.r.java_regex}</a>)
+<input type=text name=filter value="{$filter|html:&#94;&#40;com\.)?hihex\.}" class=regex-input required> </blockquote>
+<p>{.r.settings_log_filter}:
+<input type=checkbox id=log-filter-use-default name=log-filter-use-default {$log_filter_use_default|checked(true)}>
+<label for=log-filter-use-default>{.r.settings_log_filter_use_default}</label><br>
+<textarea name=log-filters cols=100 rows=40 {.if ($log_filter_use_default == true)}disabled{/if}>{$log_filter|html}</textarea>
+<p><input type=submit value="{.r.settings_save}">
+</form>
+<script src="/static/settings.js"></script>

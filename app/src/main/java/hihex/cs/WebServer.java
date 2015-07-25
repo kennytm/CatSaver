@@ -26,6 +26,7 @@ import android.net.Uri;
 import com.google.common.base.Functions;
 import com.google.common.base.Optional;
 import com.google.common.collect.TreeMultimap;
+import com.google.gson.JsonSyntaxException;
 import com.x5.template.Chunk;
 
 import java.io.File;
@@ -89,10 +90,20 @@ final class WebServer extends NanoHTTPD {
                 return serveStatic("favicon.png");
             case "/settings":
                 return serveSettings();
+            case "/filters":
+                return serveFilters();
             case "/update-settings": {
                 try {
                     session.parseBody(new HashMap<String, String>());
                     return updateSettings(session.getParms());
+                } catch (final IOException | ResponseException e) {
+                    return serve404();
+                }
+            }
+            case "/update-filter-settings": {
+                try {
+                    session.parseBody(new HashMap<String, String>());
+                    return updateFilterSettings(session.getParms());
                 } catch (final IOException | ResponseException e) {
                     return serve404();
                 }
@@ -257,7 +268,7 @@ final class WebServer extends NanoHTTPD {
     private Response updateSettings(final Map<String, String> parameters) {
         final String filterString = parameters.get("filter");
         if (filterString == null) {
-            return serveInvalidSettingError("Missing filter", null);
+            return serveInvalidSettingError("settings", "Missing filter", null);
         }
         try {
             final Pattern filter = Pattern.compile(filterString);
@@ -278,19 +289,52 @@ final class WebServer extends NanoHTTPD {
             mConfig.updateSettings(filter, filesize, duration, shouldShowIndictor, shouldRunOnBoot);
             return serveRedirect("Settings updated", "/");
         } catch (final PatternSyntaxException e) {
-            return serveInvalidSettingError("Invalid filter syntax", e);
+            return serveInvalidSettingError("settings", "Invalid filter syntax", e);
         } catch (final NumberFormatException e) {
-            return serveInvalidSettingError("Invalid number", e);
+            return serveInvalidSettingError("settings", "Invalid number", e);
         }
+    }
+
+    private Response updateFilterSettings(final Map<String, String> parameters) {
+        final String filterString = parameters.get("filter");
+        if (filterString == null) {
+            return serveInvalidSettingError("filters", "Missing filter", null);
+        }
+
+        final boolean hasDefaultLogFilter = "on".equals(parameters.get("log-filter-use-default"));
+        final String logFilter = hasDefaultLogFilter ? null : parameters.get("log-filters");
+
+        try {
+            final Pattern filter = Pattern.compile(filterString);
+            mConfig.updateFilters(filter, logFilter);
+            return serveRedirect("Filters updated", "/");
+        } catch (final PatternSyntaxException e) {
+            return serveInvalidSettingError("filters", "Invalid filter regular expression", e);
+        } catch (final IllegalStateException e) {
+            return serveInvalidSettingError("filters", "Invalid TOML syntax", e);
+        } catch (final JsonSyntaxException e) {
+            return serveInvalidSettingError("filters", "Invalid TOML type", e);
+        }
+    }
+
+    private Response serveFilters() {
+        final Chunk chunk = mConfig.theme.makeChunk("filters");
+        chunk.put("filter", mConfig.getFilter().pattern());
+        chunk.put("log_filter", mConfig.getRawLogFilter());
+        if (mConfig.hasDefaultLogFilter()) {
+            chunk.put("log_filter_use_default", "true");
+        }
+        return new Response(chunk.toString());
     }
 
     private Response serve404() {
         return new Response(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found");
     }
 
-    private Response serveInvalidSettingError(final String title, final Throwable e) {
+    private Response serveInvalidSettingError(final String source, final String title, final Throwable e) {
         final Chunk chunk = mConfig.theme.makeChunk("settings_error");
         chunk.put("title", title);
+        chunk.put("source", source);
         if (e != null) {
             chunk.put("message", e.getLocalizedMessage());
         }

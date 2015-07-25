@@ -20,7 +20,9 @@
 <meta charset="utf-8">
 <link rel="shortcut icon" type="image/png" href="/static/favicon.png">
 <link rel="stylesheet" type="text/css" href="/static/styles.css">
-<p><a href="/settings"><span class=command>&#x2699;</span> {.r.settings}</a>
+<p>
+<a href="/settings"><span class=command>&#x2699;</span> {.r.settings}</a> &mdash;
+<a href="/filters"><span class=command>&#x2614;</span> {.r.filter_settings}</a>
 <hr>
 <h2>{.r.log_files}</h2>
 <table id=filelist>

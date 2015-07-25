@@ -21,21 +21,29 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.text.TextUtils;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
 import com.google.common.eventbus.EventBus;
+import com.google.common.io.CharStreams;
+import com.google.common.io.Closeables;
 import com.x5.template.Chunk;
 import com.x5.template.Theme;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
@@ -48,6 +56,9 @@ public final class Config {
     public static final String SHARED_PREFS_PURGE_DURATION_KEY = "purge_duration";
     public static final String SHARED_PREFS_SHOW_INDICATOR_KEY = "show_indicator";
     public static final String SHARED_PREFS_RUN_ON_BOOT_KEY = "run_on_boot";
+    public static final String SHARED_PREFS_LOG_FILTER_KEY = "log_filter";
+
+    public static final int[] EMPTY_PID_ARRAY = {};
 
     //{{{ Fixed configuration. These cannot be modified by anyone.
 
@@ -84,6 +95,10 @@ public final class Config {
      */
     private volatile Pattern mFilter;
 
+    private volatile String mRawLogFilter;
+    private volatile boolean mHasDefaultLogFilter;
+    private volatile LogEntryFilter mLogFilter;
+
     private volatile long mPurgeFilesize;
     private volatile long mPurgeDuration;
 
@@ -113,9 +128,35 @@ public final class Config {
         mFilter = Pattern.compile(filter);
         mPurgeFilesize = sharedPreferences.getLong(SHARED_PREFS_PURGE_FILESIZE_KEY, -1);
         mPurgeDuration = sharedPreferences.getLong(SHARED_PREFS_PURGE_DURATION_KEY, -1);
+        readLogFilter();
 
         mLogPrefixChunk = theme.makeChunk("log#prefix");
         mLogSuffixChunk = theme.makeChunk("log#suffix");
+    }
+
+    private String readDefaultLogFilter() {
+        final InputStream stream = context.getResources().openRawResource(R.raw.default_filter_config);
+        final Reader reader = new InputStreamReader(stream, Charsets.UTF_8);
+        try {
+            return CharStreams.toString(reader);
+        } catch (final IOException e) {
+            // Should not happen
+            throw new RuntimeException(e);
+        } finally {
+            Closeables.closeQuietly(reader);
+        }
+    }
+
+    private void readLogFilter() {
+        String logFilter = sharedPreferences.getString(SHARED_PREFS_LOG_FILTER_KEY, null);
+        if (logFilter != null) {
+            mHasDefaultLogFilter = false;
+        } else {
+            mHasDefaultLogFilter = true;
+            logFilter = readDefaultLogFilter();
+        }
+        mRawLogFilter = logFilter;
+        mLogFilter = LogEntryFilter.parse(logFilter);
     }
 
     public Pattern getFilter() {
@@ -160,6 +201,23 @@ public final class Config {
         editor.apply();
         removeExpiredLogs();
         eventBus.post(new Events.RecordIndicatorVisibility(shouldShowIndicator));
+    }
+
+    public void updateFilters(final Pattern filter, String logFilter) {
+        if (logFilter == null) {
+            mHasDefaultLogFilter = true;
+            mRawLogFilter = readDefaultLogFilter();
+            mLogFilter = LogEntryFilter.parse(mRawLogFilter);
+        } else {
+            mLogFilter = LogEntryFilter.parse(logFilter);
+            mHasDefaultLogFilter = false;
+            mRawLogFilter = logFilter;
+        }
+        mFilter = filter;
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(SHARED_PREFS_FILTER_KEY, filter.pattern());
+        editor.putString(SHARED_PREFS_LOG_FILTER_KEY, logFilter);
+        editor.apply();
     }
 
     public void refreshPids() {
@@ -335,5 +393,45 @@ public final class Config {
                 }
             }
         }
+    }
+
+    public String getRawLogFilter() {
+        return mRawLogFilter;
+    }
+
+    public boolean hasDefaultLogFilter() {
+        return mHasDefaultLogFilter;
+    }
+
+    public LogEntryFilter getLogFilter() {
+        return mLogFilter;
+    }
+
+    public int[] getFilteredPidsForLog(final LogEntry entry, final int sourcePid) {
+        final Optional<PidEntry> sourcePidEntry = mPidDatabase.getEntry(sourcePid);
+        if (!sourcePidEntry.isPresent()) {
+            return EMPTY_PID_ARRAY;
+        }
+
+        final String source = sourcePidEntry.get().processName;
+        final Set<String> targets = mPidDatabase.listRecordingProcessNames();
+        final HashSet<String> filtered = mLogFilter.filter(entry, source, targets);
+        if (filtered.isEmpty()) {
+            return EMPTY_PID_ARRAY;
+        }
+
+        final int[] pids = new int[filtered.size()];
+        int i = 0;
+        for (final String target : filtered) {
+            final int targetPid;
+            if (target.equals(source)) {
+                targetPid = sourcePid;
+            } else {
+                targetPid = mPidDatabase.findPidForExactProcessName(target);
+            }
+            pids[i] = targetPid;
+            ++i;
+        }
+        return pids;
     }
 }

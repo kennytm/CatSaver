@@ -36,7 +36,6 @@ Todo
 ----
 
 * Proper testing with coverage
-* Filter out useless log lines (e.g. the GC_CONCURRENT logs)
 
 License
 -------

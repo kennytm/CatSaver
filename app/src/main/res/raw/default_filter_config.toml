@@ -1,0 +1,45 @@
+# The filter specification is formatted using TOML 0.4, see https://github.com/toml-lang/toml.
+#
+# The [[ignore]] sections introduce filters that prevents an entry being logged.
+
+[[ignore]]
+level = 'D'
+tags = ['dalvikvm', 'TVM']
+message = '^(GC_((M|FOR_)?ALLOC|CONCURRENT)|WAIT_FOR_CONCURRENT_GC blocked |Alloc from exist block failed\.allocatedSize = )'
+
+[[ignore]]
+level = 'D'
+tags = ['OpenGLRenderer']
+message = '^TextureCache::(get|callback)'
+
+[[ignore]]
+level = 'V'
+tags = ['dalvikvm']
+message = '''^(\+{3} ((not )?scanning|calling)|Found '[^']+' with dlsym$|dvm_dlsym\(\) returns )'''
+
+[[ignore]]    # for genymotion
+level = 'W'
+tags = ['EGL_emulation']
+message = '^eglSurfaceAttrib not implemented$'
+
+[[ignore]]
+level = 'V'
+tags = ['TestProgress']
+message = '^nowTime = [0-9]+ mStartTime = [0-9]+$'
+
+[[ignore]]
+level = 'D'
+tags = ['IJKMEDIA']
+message = '^(ijkmp_|IjkMediaPlayer_|ffpipe)'
+
+[[ignore]]
+level = 'E'
+tags = ['SocketStream']
+message = '^readFully was waiting for [0-9]+ bytes, got [0-9]+$'
+
+# The [[snatch]] sections allow the collector to include logs targeting other packages to be included as well.
+
+[[snatch]]
+tags = ['SBRC']
+source = '^hihex\.sbrc\.services$'
+target = '^com\.hihex\.'

@@ -17,3 +17,5 @@ a.needs-confirm { color: #900; }
 
 .regex-input { width: 75%; }
 input[type=number] { width: 3em; text-align: right; }
+
+textarea[name=log-filters] { width: 90%; }

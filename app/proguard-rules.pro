@@ -19,3 +19,9 @@
 -dontwarn com.madrobot.beans.**
 -dontwarn java.beans.**
 # ^ we don't use Java Beans.
+
+###### TOML
+
+-keepclassmembers class hihex.cs.LogEntryFilter$Raw* {
+    <fields>;
+}
