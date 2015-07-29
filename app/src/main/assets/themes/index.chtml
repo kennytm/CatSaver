@@ -25,12 +25,17 @@
 <a href="/filters"><span class=command>&#x2614;</span> {.r.filter_settings}</a>
 <hr>
 <h2>{.r.log_files}</h2>
+<form action="/bulk" method=post>
 <table id=filelist>
 <thead>
-<tr><th>{.r.file}<th>{.r.last_modified}<th>{.r.file_size}<th>{.r.actions}
+<tr><th><input type=checkbox id=select-all><th>{.r.file}<th>{.r.last_modified}<th>{.r.file_size}<th>{.r.actions}
 <tbody>
 {% loop in $files as $f %}
 <tr>
+<td>
+{% if (!$f.pid) %}
+    <input type=checkbox name=file-selector value="{$f.file_name}">
+{% endif %}
 <td><a href="/read/{$f.file_name|html}">{$f.file_name|html}</a>
 <td>{$f.last_modified|relative_time}
 <td>{$f.file_size|file_size}
@@ -39,13 +44,17 @@
     <a class="command needs-confirm" data-confirm="stop,{$f.process_name|html}" href="/stop/{$f.pid}" title="{.r.hint_stop}">&#x274e;</a>
 {% else %}
     <a class="command needs-confirm" data-confirm="del,{$f.file_name|html}" href="/delete/{$f.file_name|html}" title="{.r.hint_delete}">&#x1f6ab;</a>
-{% endif %}
     <a class=command href="/download/{$f.file_name|html}" title="{.r.hint_download}" download>&#x1f4e5;</a>
+{% endif %}
 {% onEmpty %}
 <tr><td colspan=4>{.r.nothing_logged_yet}
 {% endloop %}
 </table>
+<p>{.r.with_selected_files}:
+<button id=bulk-delete name=action value=delete><span class=command>&#x1f6ab;</span> {.r.hint_delete}</button>
+<button id=bulk-download name=action value=download><span class=command>&#x1f4e5;</span> {.r.hint_download}</button>
 <p>{.r.total_size_occupied}: <strong>{$total_size|file_size}</strong>.
+</form>
 <hr>
 <h2>{.r.running_processes}</h2>
 <table id=pidlist>
@@ -71,6 +80,7 @@ var confirmMessages = {
     start: '{.r.confirm_start}',
     stop: '{.r.confirm_stop}',
     del: '{.r.confirm_delete}',
+    bulkDel: '{.r.confirm_delete_many}',
 };
 </script>
 <script src="/static/index.js"></script>

@@ -4,10 +4,10 @@ table { border-collapse: collapse; }
 tr:hover { background-color: #ffe; }
 td { border: 1px solid #eee; padding: 2px 5px; }
 
-#filelist td:nth-child(1) { width: 30em; }
-#filelist td:nth-child(2) { width: 11em; text-align: right; }
-#filelist td:nth-child(3) { width: 5em; text-align: right; }
-#filelist td:nth-child(4) { width: 5em; text-align: center; }
+#filelist td:nth-child(2) { width: 30em; }
+#filelist td:nth-child(3) { width: 11em; text-align: right; }
+#filelist td:nth-child(4) { width: 5em; text-align: right; }
+#filelist td:nth-child(5) { width: 5em; text-align: center; }
 #pidlist td:nth-child(1) { width: 4em; text-align: right; }
 #pidlist td:nth-child(2) { width: 20em; max-width: 20em; overflow: hidden; }
 #pidlist td:nth-child(3) { width: 3em; text-align: center; }

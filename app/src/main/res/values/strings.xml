@@ -52,6 +52,7 @@
     <string name="chunk_confirm_start">Start recording “%s”?</string>
     <string name="chunk_confirm_stop">Stop recording “%s”?\\n\\nNote that the current file will be closed, and future recordings of the same process will be saved to a new file.</string>
     <string name="chunk_confirm_delete">Delete “%s”?</string>
+    <string name="chunk_confirm_delete_many">Delete %s files?</string>
 
     <string name="chunk_build_brand">Brand</string>
     <string name="chunk_build_product">Product</string>
@@ -65,6 +66,7 @@
     <string name="chunk_hint_delete">Delete</string>
     <string name="chunk_hint_download">Download</string>
     <string name="chunk_hint_download_apk">Download APK</string>
+    <string name="chunk_with_selected_files">With selected files</string>
 
     <string name="chunk_settings_prompt_filter">Automatically record logs when process name is</string>
     <string name="chunk_settings_prompt_purge">Remove old logs when</string>

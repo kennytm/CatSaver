@@ -26,12 +26,16 @@ import android.net.Uri;
 import com.google.common.base.Functions;
 import com.google.common.base.Optional;
 import com.google.common.collect.TreeMultimap;
+import com.google.common.io.ByteStreams;
 import com.google.gson.JsonSyntaxException;
 import com.x5.template.Chunk;
 
+import java.io.BufferedOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -42,6 +46,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import fi.iki.elonen.NanoHTTPD;
 
@@ -108,6 +115,28 @@ final class WebServer extends NanoHTTPD {
                     return serve404();
                 }
             }
+            case "/bulk":
+                try {
+                    session.parseBody(new HashMap<String, String>());
+                    // We can't really use the map because there will be multiple "file-selector"s. But we cannot pass
+                    // a HashMultimap above. So we need to parse the query string ourselves. The query string won't be
+                    // available without calling parseBody() though, so the statement above still exists.
+                    final Uri params = Uri.parse("/?" + session.getQueryParameterString());
+                    final List<String> files = params.getQueryParameters("file-selector");
+                    final String action = params.getQueryParameter("action");
+                    switch (action) {
+                        case "delete":
+                            return bulkDelete(files);
+                        case "download":
+                            return bulkDownload(files);
+                        default:
+                            break;
+                    }
+                } catch (final IOException | ResponseException e) {
+                    CsLog.e("Bulk action failed", e);
+                }
+                return serve404();
+
             default:
                 if (path.length() <= 1) {
                     return serve404();
@@ -203,9 +232,7 @@ final class WebServer extends NanoHTTPD {
         final File file = new File(mConfig.logFolder, filename);
         try {
             final FileInputStream stream = new FileInputStream(file);
-            final Response resp = new Response(Response.Status.OK, "application/x-gzip", stream);
-            resp.addHeader("Content-Disposition", "attachment; filename=" + filename);
-            return resp;
+            return serveFileDownload(filename, "application/x-gzip", stream);
         } catch (final IOException e) {
             return serve404();
         }
@@ -245,9 +272,7 @@ final class WebServer extends NanoHTTPD {
             final ApplicationInfo info = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
             final String apkPath = info.sourceDir;
             final FileInputStream stream = new FileInputStream(apkPath);
-            final Response resp = new Response(Response.Status.OK, "application/vnd.android.package-archive", stream);
-            resp.addHeader("Content-Disposition", "attachment; filename=" + packageName + ".apk");
-            return resp;
+            return serveFileDownload(packageName + ".apk", "application/vnd.android.package-archive", stream);
         } catch (final PackageManager.NameNotFoundException e) {
             return serve404();
         } catch (final FileNotFoundException e) {
@@ -327,6 +352,50 @@ final class WebServer extends NanoHTTPD {
         return new Response(chunk.toString());
     }
 
+    private Response bulkDownload(final List<String> files) throws IOException {
+        final File zipFile = File.createTempFile("CatSaverLogs", "zip");
+        try {
+            final ZipOutputStream stream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
+            stream.putNextEntry(new ZipEntry("CatSaverLogs/"));
+
+            for (final String fileName : files) {
+                final File file = new File(mConfig.logFolder, fileName);
+
+                final InputStream input;
+                final ZipEntry entry;
+                if (fileName.endsWith(".gz")) {
+                    entry = new ZipEntry("CatSaverLogs/" + fileName.substring(0, fileName.length() - 3));
+                    input = new GZIPInputStream(new FileInputStream(file));
+                } else {
+                    entry = new ZipEntry("CatSaverLogs/" + fileName);
+                    input = new FileInputStream(file);
+                }
+                stream.putNextEntry(entry);
+                try {
+                    ByteStreams.copy(input, stream);
+                } catch (final EOFException e) {
+                    // Early EOF, ignore?
+                }
+                input.close();
+                stream.closeEntry();
+            }
+            stream.close();
+
+            final FileInputStream result = new FileInputStream(zipFile);
+            return serveFileDownload("CatSaverLogs.zip", "application/zip", result);
+        } finally {
+            zipFile.delete();
+        }
+    }
+
+    private Response bulkDelete(final List<String> files) {
+        for (final String fileName : files) {
+            final File file = new File(mConfig.logFolder, fileName);
+            file.delete();
+        }
+        return serveRedirect("Deleted " + files.size() + " files", "/");
+    }
+
     private Response serve404() {
         return new Response(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found");
     }
@@ -339,5 +408,11 @@ final class WebServer extends NanoHTTPD {
             chunk.put("message", e.getLocalizedMessage());
         }
         return new Response(Response.Status.BAD_REQUEST, MIME_HTML, chunk.toString());
+    }
+
+    private Response serveFileDownload(final String fileName, final String mimeType, final InputStream stream) {
+        final Response resp = new Response(Response.Status.OK, mimeType, stream);
+        resp.addHeader("Content-Disposition", "attachment; filename=" + fileName);
+        return resp;
     }
 }

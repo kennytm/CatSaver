@@ -48,6 +48,7 @@
     <string name="chunk_confirm_start">確定開始記錄「%s」?</string>
     <string name="chunk_confirm_stop">確定停止記錄「%s」?\\n\\n注意，現時的記錄檔案將會關閉。若重新記錄這個處理程序，將會保存新的檔案。</string>
     <string name="chunk_confirm_delete">確定刪除「%s」?</string>
+    <string name="chunk_confirm_delete_many">確定刪除 %s 個檔案?</string>
 
     <string name="chunk_build_brand">品牌</string>
     <string name="chunk_build_product">產品</string>
@@ -61,6 +62,7 @@
     <string name="chunk_hint_delete">刪除</string>
     <string name="chunk_hint_download">下載</string>
     <string name="chunk_hint_download_apk">下載APK</string>
+    <string name="chunk_with_selected_files">已選擇的檔案</string>
 
     <string name="chunk_settings_prompt_filter">處理程序名稱如下時自動開始記錄</string>
     <string name="chunk_settings_prompt_purge">符合下列條件時清除舊記錄</string>
