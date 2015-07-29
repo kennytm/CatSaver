@@ -5,7 +5,7 @@
 [[ignore]]
 level = 'D'
 tags = ['dalvikvm', 'TVM']
-message = '^(GC_((M|FOR_)?ALLOC|CONCURRENT)|WAIT_FOR_CONCURRENT_GC blocked |Alloc from exist block failed\.allocatedSize = )'
+message = '^(GC_((M|FOR_)?ALLOC|CONCURRENT|TIME)|WAIT_FOR_CONCURRENT_GC blocked |Alloc from exist block failed\.allocatedSize = )'
 
 [[ignore]]
 level = 'D'
@@ -36,6 +36,11 @@ message = '^(ijkmp_|IjkMediaPlayer_|ffpipe)'
 level = 'E'
 tags = ['SocketStream']
 message = '^readFully was waiting for [0-9]+ bytes, got [0-9]+$'
+
+[[ignore]]
+level = 'V'
+tags = ['Input', 'TraceActivity']
+message = '^(Start read buff item index i = [0-9]+|has(Head|Tail)Data = (true|false)|(head|tail)Size = [0-9]+)$'
 
 # The [[snatch]] sections allow the collector to include logs targeting other packages to be included as well.
 
