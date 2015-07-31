@@ -117,7 +117,9 @@ public final class PidDatabase {
         }
     }
 
-    /** Find the pid corresponding to the filename, if still recording. Returns -1 if not recording. */
+    /**
+     * Find the pid corresponding to the filename, if still recording. Returns -1 if not recording.
+     */
     public synchronized int findPid(final String filename) {
         for (final PidEntry entry : mEntries) {
             if (entry.path.isPresent()) {
@@ -131,7 +133,9 @@ public final class PidDatabase {
         return -1;
     }
 
-    /** Obtains the list of running processes. */
+    /**
+     * Obtains the list of running processes.
+     */
     public synchronized List<HashMap<String, String>> runningProcesses() {
         final ArrayList<PidEntry> entries = mEntries;
         Collections.sort(entries, new Comparator<PidEntry>() {
@@ -191,11 +195,14 @@ public final class PidDatabase {
         }
     }
 
-    /** Start recording logs for the specified pid. */
-    public synchronized Optional<Writer> startRecording(final int pid,
-                                                        final Optional<String> processName,
-                                                        final File parent,
-                                                        final Date timestamp) throws IOException {
+    /**
+     * Start recording logs for the specified pid.
+     */
+    public synchronized void startRecording(final int pid,
+                                            final Optional<String> processName,
+                                            final File parent,
+                                            final Date timestamp,
+                                            final Function<PidEntry, ?> initialize) throws IOException {
         int index = getEntryIndex(pid);
         final PidEntry oldEntry;
         if (index >= 0) {
@@ -203,18 +210,21 @@ public final class PidDatabase {
         } else if (processName.isPresent()) {
             oldEntry = new PidEntry(pid, processName.get());
         } else {
-            return Optional.absent();
+            return;
         }
 
         final PidEntry newEntry = oldEntry.open(parent, timestamp);
         if (newEntry != oldEntry) {
-            if (index >= 0) {
-                mEntries.set(index, newEntry);
-            } else {
-                mEntries.add(newEntry);
+            try {
+                initialize.apply(newEntry);
+            } finally {
+                if (index >= 0) {
+                    mEntries.set(index, newEntry);
+                } else {
+                    mEntries.add(newEntry);
+                }
             }
         }
-        return newEntry.writer;
     }
 
     public synchronized void stopRecording(final int pid, final Function<Writer, ?> cleanup) {

@@ -24,11 +24,13 @@ import android.text.TextUtils;
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Closeables;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.x5.template.Chunk;
 import com.x5.template.Theme;
 
@@ -254,19 +256,28 @@ public final class Config {
 
     public Optional<Writer> startRecording(final int pid, final Optional<String> processName, final Date timestamp)
             throws IOException {
-        final Optional<Writer> optWriter = mPidDatabase.startRecording(pid, processName, logFolder, timestamp);
-        if (optWriter.isPresent()) {
-            final Writer writer = optWriter.get();
-            final String proc;
-            if (processName.isPresent()) {
-                proc = processName.get();
-            } else {
-                proc = mPidDatabase.getEntry(pid).get().processName;
-            }
-            writeHeader(writer, pid, proc, timestamp);
+        final Writer[] optWriter = {null};
+        try {
+            mPidDatabase.startRecording(pid, processName, logFolder, timestamp, new Function<PidEntry, Void>() {
+                @Override
+                public Void apply(final PidEntry entry) {
+                    final Writer writer = entry.writer.get();
+                    optWriter[0] = writer;
+                    try {
+                        writeHeader(writer, entry.pid, processName.or(entry.processName), timestamp);
+                    } catch (final IOException e) {
+                        throw new UncheckedExecutionException(e);
+                    }
+                    return null;
+                }
+            });
+        } catch (final UncheckedExecutionException e) {
+            final Throwable cause = e.getCause();
+            Throwables.propagateIfInstanceOf(cause, IOException.class);
+            throw Throwables.propagate(cause);
         }
         eventBus.post(new Events.RecordCount(mPidDatabase.countRecordingEntries()));
-        return optWriter;
+        return Optional.fromNullable(optWriter[0]);
     }
 
     public void stopRecording(final int pid, final Function<Writer, ?> cleanup) {
