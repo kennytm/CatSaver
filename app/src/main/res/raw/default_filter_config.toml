@@ -17,6 +17,11 @@ level = 'V'
 tags = ['dalvikvm']
 message = '''^(\+{3} ((not )?scanning|calling)|Found '[^']+' with dlsym$|dvm_dlsym\(\) returns )'''
 
+[[ignore]]
+level = 'E'
+tags = ['dalvikvm-heap']
+message = '^(Enter|Leave) gcForMalloc'
+
 [[ignore]]    # for genymotion
 level = 'W'
 tags = ['EGL_emulation']

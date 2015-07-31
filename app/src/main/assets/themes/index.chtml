@@ -47,7 +47,7 @@
     <a class=command href="/download/{$f.file_name|html}" title="{.r.hint_download}" download>&#x1f4e5;</a>
 {% endif %}
 {% onEmpty %}
-<tr><td colspan=4>{.r.nothing_logged_yet}
+<tr><td colspan=5>{.r.nothing_logged_yet}
 {% endloop %}
 </table>
 <p>{.r.with_selected_files}:
