@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
   ~ CatSaver
   ~ Copyright (C) 2015 HiHex Ltd.
@@ -16,39 +15,31 @@
   ~ You should have received a copy of the GNU General Public License along with
   ~ this program.  If not, see <http://www.gnu.org/licenses/>.
   ~
+  ~
   -->
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
+              android:orientation="horizontal"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center"
+              android:gravity="center"
               tools:context=".MainActivity">
-    <include layout="@layout/check_update_button"/>
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/server_prompt_pre"
-        android:layout_weight="1"
-        android:gravity="bottom|center_horizontal"
-        style="@style/large_text"/>
+        android:id="@+id/current_version_label"
+        android:text="@string/current_version_format"
+        android:layout_marginRight="15dp"
+        android:layout_marginEnd="15dp"/>
 
-    <TextView
-        android:layout_width="match_parent"
+    <Button
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/server_address"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:textIsSelectable="true"
-        android:autoLink="web"
-        style="@style/large_text"/>
+        android:text="@string/check_for_updates"
+        android:layout_gravity="center"
+        android:onClick="checkUpdate"
+        style="?android:attr/buttonStyleSmall"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/server_prompt_post"
-        android:layout_weight="1"
-        android:gravity="top|center_horizontal"
-        style="@style/large_text"/>
 </LinearLayout>

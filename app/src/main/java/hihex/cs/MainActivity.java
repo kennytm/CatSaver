@@ -30,10 +30,15 @@ import android.os.SystemClock;
 import android.view.View;
 import android.widget.TextView;
 
+import hihex.cs.updates.UpdateChecker;
+
 public final class MainActivity extends Activity {
+    private UpdateChecker mUpdateChecker = null;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mUpdateChecker = new UpdateChecker();
 
         final int checkResult = checkPermission(Manifest.permission.READ_LOGS, Process.myPid(), Process.myUid());
         if (checkResult == PackageManager.PERMISSION_GRANTED) {
@@ -46,6 +51,9 @@ public final class MainActivity extends Activity {
         } else {
             setContentView(R.layout.need_perm);
         }
+
+        final TextView versionView = (TextView) findViewById(R.id.current_version_label);
+        versionView.setText(getString(R.string.current_version_format, BuildConfig.VERSION_NAME));
     }
 
     public void tryGrantPermission(final View view) {
@@ -61,5 +69,9 @@ public final class MainActivity extends Activity {
                 Process.killProcess(Process.myPid());
             }
         }).start();
+    }
+
+    public void checkUpdate(final View view) {
+        mUpdateChecker.showCheckDialog(this);
     }
 }

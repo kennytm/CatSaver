@@ -24,7 +24,17 @@
     <string name="perm_prompt_post">and restart this app.</string>
     <string name="perm_command" translatable="false">adb shell pm grant hihex.cs android.permission.READ_LOGS</string>
     <string name="try_to_grant">Try to Grant</string>
-    
+
+    <string name="current_version_format">Version %s</string>
+    <string name="check_for_updates">Check for Updates</string>
+    <string name="contacting_update_server">Contacting update server…</string>
+    <string name="already_up_to_date">CatSaver is already up to date</string>
+    <string name="new_version_available_format">Version %s is available</string>
+    <string name="download">Download</string>
+    <string name="date">Date</string>
+    <string name="size">Size</string>
+    <string name="whats_new">What’s new</string>
+
     <string name="running_hint">Collecting logs…</string>
     <string name="stopping_hint">Stop collecting logs</string>
 

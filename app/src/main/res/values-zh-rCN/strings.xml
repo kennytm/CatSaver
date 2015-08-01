@@ -21,6 +21,16 @@
     <string name="perm_prompt_post">给予权限，然後重新打开此程序。</string>
     <string name="try_to_grant">尝试授权</string>
 
+    <string name="current_version_format">版本 %s</string>
+    <string name="check_for_updates">检查更新</string>
+    <string name="contacting_update_server">正在检查更新…</string>
+    <string name="already_up_to_date">现已为最新版本</string>
+    <string name="new_version_available_format">版本 %s 可供下载</string>
+    <string name="download">下载</string>
+    <string name="date">日期</string>
+    <string name="size">大小</string>
+    <string name="whats_new">更新资讯</string>
+
     <string name="running_hint">正在收集错误记录…</string>
     <string name="stopping_hint">停止收集错误记录</string>
 

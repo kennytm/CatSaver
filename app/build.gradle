@@ -41,6 +41,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            versionNameSuffix "-alpha"
+        }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -54,4 +57,5 @@ dependencies {
     compile 'com.google.guava:guava:18.0'               // Various utilities
     compile 'com.x5dev:chunk-templates:3.0.0'           // HTML templating
     compile 'com.moandjiezana.toml:toml4j:0.4.0'        // Filter specification
+    compile 'com.github.villadora:semver:0.0.3'         // Comparing versions
 }
