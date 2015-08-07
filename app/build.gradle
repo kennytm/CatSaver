@@ -16,38 +16,47 @@
  *
  */
 
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.model.application'
 
-android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
-    defaultConfig {
-        applicationId "hihex.cs"
-        minSdkVersion 15
-        targetSdkVersion 22
-        versionCode 4
-        versionName "0.3.0"
+model {
+    // Workaround https://code.google.com/p/android/issues/detail?id=182249#c1.
+    def aosp
+
+    android {
+        compileSdkVersion = 22
+        buildToolsVersion = "22.0.1"
+
+        defaultConfig.with {
+            applicationId = "hihex.cs"
+            minSdkVersion.apiLevel = 15
+            targetSdkVersion.apiLevel = 22
+            versionCode = 4
+            versionName = "0.3.0"
+        }
     }
-
-    signingConfigs {
-        aosp {
+    android.signingConfigs {
+        create('aosp') {
             // Keystore constructed using http://stackoverflow.com/a/14035885/
-            storeFile file("aosp.keystore")
-            storePassword "android"
-            keyAlias "platform"
-            keyPassword "android"
+            storeFile = file("aosp.keystore")
+            storePassword = "android"
+            storeType = "JKS"
+            keyAlias = "platform"
+            keyPassword = "android"
+            aosp = it
         }
     }
 
-    buildTypes {
+    android.buildTypes {
         debug {
-            versionNameSuffix "-alpha"
+            versionNameSuffix = "-alpha"
         }
         release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.aosp
+            minifyEnabled = true
+            proguardFiles += 'proguard-rules.pro'
+            signingConfig = aosp
         }
     }
 }
