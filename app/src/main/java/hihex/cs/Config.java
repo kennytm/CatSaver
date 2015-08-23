@@ -124,7 +124,7 @@ public final class Config {
 
         this.context = context;
         mPackageManager = context.getPackageManager();
-        theme = ChunkTheme.create(context);
+        theme = ChunkTheme.create(context, eventBus);
         sharedPreferences = getSharedPreferences(context);
         final String filter = sharedPreferences.getString(SHARED_PREFS_FILTER_KEY, "^(com\\.)?hihex\\.(?!cs$)");
         mFilter = Pattern.compile(filter);

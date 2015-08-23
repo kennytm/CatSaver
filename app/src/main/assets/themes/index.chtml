@@ -18,7 +18,7 @@
 <!DOCTYPE html>
 <title>CatSaver</title>
 <meta charset="utf-8">
-<link rel="shortcut icon" type="image/png" href="/static/favicon.png">
+{+favicon}
 <link rel="stylesheet" type="text/css" href="/static/styles.css">
 <p>
 <a href="/settings"><span class=command>&#x2699;</span> {.r.settings}</a> &mdash;

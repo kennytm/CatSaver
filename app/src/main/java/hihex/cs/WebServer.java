@@ -21,16 +21,25 @@ package hihex.cs;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 import com.google.common.base.Functions;
 import com.google.common.base.Optional;
 import com.google.common.collect.TreeMultimap;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonSyntaxException;
 import com.x5.template.Chunk;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,14 +66,39 @@ import fi.iki.elonen.NanoHTTPD;
  */
 final class WebServer extends NanoHTTPD {
     public static final int PORT = 47689; // Perhaps we should let the OS choose the port?
-    public static final String DEFAULT_FILTER_PREFS_KEY = "filter";
 
     private final Config mConfig;
 
-    public WebServer(final Config config) {
+    private final Drawable mCatSaverIcon;
+    private final Paint mFaviconFillPaint;
+    private final Paint mFaviconOutlinePaint;
+    private byte[] mFaviconPng = {};
+
+    public WebServer(final Config config, final Drawable catSaverIcon) {
         super(PORT);
 
         mConfig = config;
+        mCatSaverIcon = catSaverIcon;
+        mConfig.eventBus.register(this);
+
+        {
+            final Paint paint = new Paint();
+            paint.setTextAlign(Paint.Align.RIGHT);
+            paint.setColor(Color.BLACK);
+            paint.setTextSize(12);
+            paint.setTypeface(Typeface.SANS_SERIF);
+            paint.setAntiAlias(true);
+            paint.setTextScaleX(1.17f);
+            paint.setStyle(Paint.Style.FILL);
+            mFaviconFillPaint = paint;
+        }
+        {
+            final Paint paint = new Paint(mFaviconFillPaint);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(5);
+            paint.setColor(Color.WHITE);
+            mFaviconOutlinePaint = paint;
+        }
     }
 
     private static String getMimeType(final String path) {
@@ -94,7 +128,7 @@ final class WebServer extends NanoHTTPD {
             case "/":
                 return serveIndex();
             case "/favicon.ico":
-                return serveStatic("favicon.png");
+                return serveFavicon();
             case "/settings":
                 return serveSettings();
             case "/filters":
@@ -153,7 +187,11 @@ final class WebServer extends NanoHTTPD {
         final String filename = path.substring(secondSlash + 1);
         switch (action) {
             case "static":
-                return serveStatic(filename);
+                if ("favicon.png".equals(filename)) {
+                    return serveFavicon();
+                } else {
+                    return serveStatic(filename);
+                }
             case "read":
                 return serveLog(filename);
             case "download":
@@ -414,5 +452,26 @@ final class WebServer extends NanoHTTPD {
         final Response resp = new Response(Response.Status.OK, mimeType, stream);
         resp.addHeader("Content-Disposition", "attachment; filename=" + fileName);
         return resp;
+    }
+
+    private Response serveFavicon() {
+        final ByteArrayInputStream stream = new ByteArrayInputStream(mFaviconPng);
+        return new Response(Response.Status.OK, "image/png", stream);
+    }
+
+    @Subscribe
+    public void refreshFavicon(final Events.UpdateIpAddress ipValue) {
+        final Bitmap bitmap = Bitmap.createBitmap(36, 36, Bitmap.Config.ARGB_8888);
+        final Canvas canvas = new Canvas(bitmap);
+        mCatSaverIcon.setBounds(0, 0, 36, 36);
+        mCatSaverIcon.draw(canvas);
+
+        final String ipSegment = IpAddresses.extractLastPart(ipValue.ipAddress);
+        canvas.drawText(ipSegment, 36, 34, mFaviconOutlinePaint);
+        canvas.drawText(ipSegment, 36, 34, mFaviconFillPaint);
+
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        mFaviconPng = stream.toByteArray();
     }
 }

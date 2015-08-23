@@ -37,5 +37,13 @@ public final class Events {
             this.isVisible = isVisible;
         }
     }
+
+    public static final class UpdateIpAddress {
+        public final String ipAddress;
+
+        public UpdateIpAddress() {
+            ipAddress = IpAddresses.getBestIpAddress();
+        }
+    }
 }
 

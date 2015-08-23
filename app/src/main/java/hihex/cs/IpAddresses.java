@@ -31,8 +31,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class IpAddresses {
+    private static final Pattern LAST_PART_PATTERN = Pattern.compile("(?:[0-9]+\\.)?[0-9a-fA-F]+\\]?$");
+
     private static List<InetAddress> getAllAddresses() {
         final ArrayList<InetAddress> addresses = new ArrayList<>(3);
         try {
@@ -117,5 +121,18 @@ public final class IpAddresses {
                 return addressToString(input);
             }
         });
+    }
+
+    public static String extractLastPart(final String ipAddress) {
+        final Matcher matcher = LAST_PART_PATTERN.matcher(ipAddress);
+        if (!matcher.find()) {
+            return "NoIP";
+        }
+        final String group = matcher.group();
+        if (group.endsWith("]")) {
+            return '[' + group;
+        } else {
+            return group;
+        }
     }
 }

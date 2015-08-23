@@ -51,6 +51,8 @@ public final class LogRecorder implements Runnable {
         mLogEntryChunk = theme.makeChunk("log#entry");
         mLogAnrEntryPrefixChunk = theme.makeChunk("log#anr_entry_prefix");
         mLogAnrEntrySuffixChunk = theme.makeChunk("log#anr_entry_suffix");
+
+        mConfig.eventBus.register(this);
     }
 
     @Override

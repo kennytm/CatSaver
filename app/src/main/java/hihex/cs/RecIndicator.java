@@ -40,11 +40,12 @@ public final class RecIndicator {
         mIpView = (TextView) mRootView.findViewById(R.id.rec_ip);
         mBackgroundView = mRootView.findViewById(R.id.rec_bg);
         mTextView.setText("0");
-        mIpView.setText(IpAddresses.getBestIpAddress());
         createFloatingWindow(context);
         mMainThreadHandler = new Handler();
         config.eventBus.register(this);
         toggleVisibility(new Events.RecordIndicatorVisibility(config.shouldShowIndicator()));
+
+        config.eventBus.register(this);
     }
 
     public void createFloatingWindow(final Context context) {
@@ -86,8 +87,9 @@ public final class RecIndicator {
         });
     }
 
-    public void updateIpAddress() {
-        final String bestIpAddress = IpAddresses.getBestIpAddress();
+    @Subscribe
+    public void updateIpAddress(final Events.UpdateIpAddress ipValue) {
+        final String bestIpAddress = ipValue.ipAddress;
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {

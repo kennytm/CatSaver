@@ -18,7 +18,7 @@
 <!DOCTYPE html>
 <title>CatSaver</title>
 <meta charset="utf-8">
-<link rel="shortcut icon" type="image/png" href="/static/favicon.png">
+{+favicon}
 <link rel="stylesheet" type="text/css" href="/static/styles.css">
 <form action="/update-filter-settings" method="post">
 <p>{.r.settings_prompt_filter}:

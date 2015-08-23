@@ -24,9 +24,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.DisplayMetrics;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -36,6 +38,7 @@ public final class CollectorService extends Service {
     private WebServer mWebServer;
     private RecIndicator mRecIndicator;
     private BroadcastReceiver mIpChangeReceiver;
+    private Config mConfig;
 
     @Override
     public IBinder onBind(final Intent intent) {
@@ -66,9 +69,11 @@ public final class CollectorService extends Service {
         // Prepare the configuration.
         final Config config = new Config(this);
         config.refreshPids();
+        mConfig = config;
 
         // Start the web server
-        mWebServer = new WebServer(config);
+        final Drawable icon = getResources().getDrawableForDensity(R.mipmap.ic_launcher, DisplayMetrics.DENSITY_LOW);
+        mWebServer = new WebServer(config, icon);
         try {
             mWebServer.start();
         } catch (final IOException e) {
@@ -78,6 +83,7 @@ public final class CollectorService extends Service {
         // Show the recording indicator
         mRecIndicator = new RecIndicator(config);
         monitorIpAddress();
+        mConfig.eventBus.post(new Events.UpdateIpAddress());
 
         // Start collecting logs for existing processes.
         config.startRecordingExistingProcesses();
@@ -110,10 +116,7 @@ public final class CollectorService extends Service {
         mIpChangeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                final RecIndicator recIndicator = mRecIndicator;
-                if (recIndicator != null) {
-                    recIndicator.updateIpAddress();
-                }
+                mConfig.eventBus.post(new Events.UpdateIpAddress());
             }
         };
         final IntentFilter filter = new IntentFilter();

@@ -22,6 +22,8 @@ import android.content.res.Resources;
 import android.text.format.DateUtils;
 import android.text.format.Formatter;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.x5.template.Chunk;
 import com.x5.template.ContentSource;
 import com.x5.template.Snippet;
@@ -138,13 +140,46 @@ public final class ChunkTheme {
         }
     }
 
-    /** Creates a customized Chunk theme. */
-    public static Theme create(final Context context) {
+    private static final class FaviconSource implements ContentSource {
+        private int mVersion = 0;
+
+        @Override
+        public String fetch(final String itemName) {
+            return String.valueOf(mVersion);
+        }
+
+        @Override
+        public boolean provides(String itemName) {
+            return true;
+        }
+
+        @Override
+        public String getProtocol() {
+            return "favicon";
+        }
+
+        @Override
+        public Snippet getSnippet(String snippetName) {
+            return null;
+        }
+
+        @Subscribe
+        public void updateIp(final Events.UpdateIpAddress ev) {
+            mVersion += 1;
+        }
+    }
+
+
+        /** Creates a customized Chunk theme. */
+    public static Theme create(final Context context, final EventBus eventBus) {
         final AndroidTemplates provider = new AndroidTemplates(context);
         final Theme theme = new Theme(provider);
         theme.registerFilter(new FileSizeFilter(context));
         theme.registerFilter(new RelativeTimeFilter(context));
         theme.addProtocol(new ResourceContentSource(context));
+        final FaviconSource faviconSource = new FaviconSource();
+        eventBus.register(faviconSource);
+        theme.addProtocol(faviconSource);
         return theme;
     }
 }
