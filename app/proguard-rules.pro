@@ -45,9 +45,13 @@
 
 -optimizations !class/merging/horizontal
 # ^ Disabled until we figure out how to avoid the VerifyError due to those java.beans.**.
--optimizationpasses 1
+-optimizationpasses 5
 -allowaccessmodification
 -verbose
+
+-keepclasseswithmembernames class hihex.cs.FlushableGzipOutputStream {
+    native <methods>;
+}
 
 ###### Note that the gradle plugin will automatically generate the following options, so we don't
 ###### need to specify these, even if we don't include proguard-android.txt:

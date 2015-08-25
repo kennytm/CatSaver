@@ -255,6 +255,7 @@ final class WebServer extends NanoHTTPD {
     }
 
     private Response serveLog(final String filename) {
+        mConfig.flushWriter(filename);
         final File file = new File(mConfig.logFolder, filename);
         try {
             final FileInputStream stream = new FileInputStream(file);

@@ -338,6 +338,22 @@ public final class Config {
         }
     }
 
+    public void flushWriter(final String filename) {
+        final Optional<PidEntry> entry = mPidDatabase.findEntry(filename);
+        if (!entry.isPresent()) {
+            return;
+        }
+        final Optional<Writer> writer = entry.get().writer;
+        if (!entry.isPresent()) {
+            return;
+        }
+        try {
+            writer.get().flush();
+        } catch (final IOException e) {
+            // Flush failure, but ignore.
+        }
+    }
+
     public int findPid(final String filename) {
         return mPidDatabase.findPid(filename);
     }

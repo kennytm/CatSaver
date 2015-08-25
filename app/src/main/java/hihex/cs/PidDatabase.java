@@ -121,16 +121,20 @@ public final class PidDatabase {
      * Find the pid corresponding to the filename, if still recording. Returns -1 if not recording.
      */
     public synchronized int findPid(final String filename) {
+        final PidEntry entry = findEntry(filename).orNull();
+        return (entry != null) ? entry.pid : -1;
+    }
+
+    public synchronized Optional<PidEntry> findEntry(final String filename) {
         for (final PidEntry entry : mEntries) {
             if (entry.path.isPresent()) {
-                final File path = entry.path.get();
                 final String entryFilename = entry.path.get().getName();
                 if (filename.equals(entryFilename)) {
-                    return entry.pid;
+                    return Optional.of(entry);
                 }
             }
         }
-        return -1;
+        return Optional.absent();
     }
 
     /**

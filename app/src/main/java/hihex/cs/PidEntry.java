@@ -22,13 +22,11 @@ import com.google.common.base.Optional;
 import com.google.common.io.Closeables;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Date;
 import java.util.Locale;
-import java.util.zip.GZIPOutputStream;
 
 public final class PidEntry {
     private static final String UNSAFE_FILENAME_PATTERN = "[^-_.,;a-zA-Z0-9]";
@@ -84,7 +82,7 @@ public final class PidEntry {
         final String safeName = processName.replaceAll(UNSAFE_FILENAME_PATTERN, "-");
         final String fileName = String.format(Locale.ROOT, "%2$s-%1$tF-%1$tH.%1$tM.%1$tS.html.gz", timestamp, safeName);
         final File path = new File(parent, fileName);
-        final Writer writer = new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(path)), Charsets.UTF_8);
+        final Writer writer = new OutputStreamWriter(new FlushableGzipOutputStream(path), Charsets.UTF_8);
 
         return new PidEntry(pid, processName, path, writer);
     }
