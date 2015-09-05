@@ -26,8 +26,8 @@ model {
     def aosp
 
     android {
-        compileSdkVersion = 22
-        buildToolsVersion = "22.0.1"
+        compileSdkVersion = 23
+        buildToolsVersion = '23.0.1'
 
         defaultConfig.with {
             applicationId = "hihex.cs"
@@ -59,6 +59,7 @@ model {
     android.buildTypes {
         debug {
             versionNameSuffix = "-alpha"
+            //testCoverageEnabled = true
         }
         release {
             minifyEnabled = true
