@@ -19,6 +19,7 @@
 package hihex.cs;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -53,10 +54,13 @@ public final class CollectorService extends Service {
         final CharSequence title = getResources().getString(R.string.app_name);
         final CharSequence detail = getResources().getString(R.string.running_hint);
 
+        final Intent intent = new Intent(this, MainActivity.class);
         final Notification.Builder notificationBuilder = new Notification.Builder(this)
                 .setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle(title)
-                .setContentText(detail);
+                .setContentText(detail)
+                .setOngoing(true)
+                .setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT));
 
         final Notification notification;
         if (Build.VERSION.SDK_INT >= 16) {
