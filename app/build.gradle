@@ -33,8 +33,8 @@ model {
             applicationId = "hihex.cs"
             minSdkVersion.apiLevel = 15
             targetSdkVersion.apiLevel = 22
-            versionCode = 5
-            versionName = '0.3.1'
+            versionCode = 6
+            versionName = '0.4.0'
         }
     }
     android.signingConfigs {
@@ -72,7 +72,7 @@ model {
 dependencies {
     compile 'com.nanohttpd:nanohttpd:2.1.1'             // HTTP web server
     compile 'com.google.guava:guava:18.0'               // Various utilities
-    compile 'com.x5dev:chunk-templates:3.0.0'           // HTML templating
+    compile 'com.x5dev:chunk-templates:3.0.1'           // HTML templating
     compile 'com.moandjiezana.toml:toml4j:0.4.0'        // Filter specification
     compile 'com.github.villadora:semver:0.0.3'         // Comparing versions
 }
