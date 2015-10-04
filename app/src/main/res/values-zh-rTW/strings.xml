@@ -31,7 +31,7 @@
     <string name="size">大小</string>
     <string name="whats_new">更新資訊</string>
 
-    <string name="running_hint">正在收集錯誤記錄…</string>
+    <string name="running_hint">CatSaver正在收集錯誤記錄…</string>
     <string name="stopping_hint">停止收集錯誤記錄</string>
 
     <string name="chunk_log_files">現存記錄</string>

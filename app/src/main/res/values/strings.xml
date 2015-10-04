@@ -35,7 +35,7 @@
     <string name="size">Size</string>
     <string name="whats_new">What’s new</string>
 
-    <string name="running_hint">Collecting logs…</string>
+    <string name="running_hint">CatSaver is collecting logs…</string>
     <string name="stopping_hint">Stop collecting logs</string>
 
     <string name="chunk_log_files">Log files</string>
