@@ -66,6 +66,7 @@ public final class CollectorService extends Service {
         if (Build.VERSION.SDK_INT >= 16) {
             notification = notificationBuilder.setPriority(Notification.PRIORITY_LOW).build();
         } else {
+            //noinspection deprecation
             notification = notificationBuilder.getNotification();
         }
         startForeground(1, notification);
@@ -76,6 +77,7 @@ public final class CollectorService extends Service {
         mConfig = config;
 
         // Start the web server
+        @SuppressWarnings("deprecation")
         final Drawable icon = getResources().getDrawableForDensity(R.mipmap.ic_launcher, DisplayMetrics.DENSITY_LOW);
         mWebServer = new WebServer(config, icon);
         try {
@@ -87,7 +89,7 @@ public final class CollectorService extends Service {
         // Show the recording indicator
         mRecIndicator = new RecIndicator(config);
         monitorIpAddress();
-        mConfig.eventBus.post(new Events.UpdateIpAddress());
+        Events.bus.post(new Events.UpdateIpAddress());
 
         // Start collecting logs for existing processes.
         config.startRecordingExistingProcesses();
@@ -120,7 +122,7 @@ public final class CollectorService extends Service {
         mIpChangeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                mConfig.eventBus.post(new Events.UpdateIpAddress());
+                Events.bus.post(new Events.UpdateIpAddress());
             }
         };
         final IntentFilter filter = new IntentFilter();

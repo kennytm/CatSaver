@@ -31,11 +31,9 @@ import android.net.Uri;
 
 import com.google.common.base.Functions;
 import com.google.common.base.Optional;
-import com.google.common.collect.TreeMultimap;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.io.ByteStreams;
 import com.google.gson.JsonSyntaxException;
-import com.x5.template.Chunk;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -81,7 +79,7 @@ final class WebServer extends NanoHTTPD {
 
         mConfig = config;
         mCatSaverIcon = catSaverIcon;
-        mConfig.eventBus.register(this);
+        Events.bus.register(this);
 
         {
             final Paint paint = new Paint();
@@ -171,7 +169,7 @@ final class WebServer extends NanoHTTPD {
                         final String value;
                         if (sep >= 0) {
                             key = URLDecoder.decode(token.substring(0, sep), "UTF-8");
-                            value = URLDecoder.decode(token.substring(sep+1), "UTF-8");
+                            value = URLDecoder.decode(token.substring(sep + 1), "UTF-8");
                         } else {
                             key = URLDecoder.decode(token, "UTF-8");
                             value = "";
@@ -241,36 +239,8 @@ final class WebServer extends NanoHTTPD {
 
     private Response serveIndex() {
         mConfig.refreshPids();
-        final List<HashMap<String, String>> processes = mConfig.runningProcesses();
-
-        final Chunk chunk = mConfig.theme.makeChunk("index");
-
-        final TreeMultimap<Long, File> files = mConfig.listLogFiles();
-
-        final ArrayList<HashMap<String, String>> encodedFiles = new ArrayList<>(files.size());
-        long totalSize = 0;
-        for (final File file : files.values()) {
-            final HashMap<String, String> content = new HashMap<>(5);
-            final long fileSize = file.length();
-            final String name = file.getName();
-            final int pid = mConfig.findPid(name);
-
-            content.put("file_name", name);
-            content.put("last_modified", String.valueOf(file.lastModified()));
-            content.put("file_size", String.valueOf(fileSize));
-            if (pid != -1) {
-                content.put("pid", String.valueOf(pid));
-                content.put("process_name", mConfig.getProcessName(pid));
-            }
-
-            encodedFiles.add(content);
-            totalSize += fileSize;
-        }
-
-        chunk.set("files", encodedFiles);
-        chunk.set("total_size", String.valueOf(totalSize));
-        chunk.set("processes", processes);
-        return new Response(chunk.toString());
+        final String content = mConfig.renderer.renderIndex(mConfig.logFiles, mConfig.pidDatabase);
+        return new Response(content);
     }
 
     private Response serveStatic(final String filename) {
@@ -286,9 +256,8 @@ final class WebServer extends NanoHTTPD {
 
     private Response serveLog(final String filename) {
         mConfig.flushWriter(filename);
-        final File file = new File(mConfig.logFolder, filename);
         try {
-            final FileInputStream stream = new FileInputStream(file);
+            final InputStream stream = mConfig.logFiles.open(filename);
             final Response resp = new Response(Response.Status.OK, MIME_HTML, stream);
             resp.addHeader("Content-Encoding", "gzip");
             return resp;
@@ -298,9 +267,8 @@ final class WebServer extends NanoHTTPD {
     }
 
     private Response serveDownload(final String filename) {
-        final File file = new File(mConfig.logFolder, filename);
         try {
-            final FileInputStream stream = new FileInputStream(file);
+            final InputStream stream = mConfig.logFiles.open(filename);
             return serveFileDownload(filename, "application/x-gzip", stream);
         } catch (final IOException e) {
             return serve404();
@@ -330,8 +298,7 @@ final class WebServer extends NanoHTTPD {
     }
 
     private Response deleteLog(final String fileName) {
-        final File file = new File(mConfig.logFolder, fileName);
-        file.delete();
+        mConfig.logFiles.delete(fileName);
         return serveRedirect("File deleted: " + fileName, "/");
     }
 
@@ -350,14 +317,9 @@ final class WebServer extends NanoHTTPD {
     }
 
     private Response serveSettings() {
-        final Chunk chunk = mConfig.theme.makeChunk("settings");
-        chunk.put("filter", mConfig.getFilter().pattern());
-        chunk.put("filesize", String.valueOf(mConfig.getPurgeFilesize()));
-        chunk.put("date", String.valueOf(mConfig.getPurgeDuration()));
-        chunk.put("show_indicator", String.valueOf(mConfig.shouldShowIndicator()));
-        chunk.put("split_size", String.valueOf(mConfig.getSplitSize()));
-        chunk.put("run_on_boot", String.valueOf(mConfig.shouldRunOnBoot()));
-        return new Response(chunk.toString());
+        final Preferences preferences = mConfig.preferences;
+        final String content = mConfig.renderer.renderSettings(preferences);
+        return new Response(content);
     }
 
     private Response updateSettings(final Map<String, String> parameters) {
@@ -387,7 +349,7 @@ final class WebServer extends NanoHTTPD {
             } else {
                 splitSize = -1;
             }
-            mConfig.updateSettings(filter, filesize, duration, shouldShowIndictor, shouldRunOnBoot, splitSize);
+            mConfig.preferences.updateSettings(filter, filesize, duration, shouldShowIndictor, shouldRunOnBoot, splitSize);
             return serveRedirect("Settings updated", "/");
         } catch (final PatternSyntaxException e) {
             return serveInvalidSettingError("settings", "Invalid filter syntax", e);
@@ -407,7 +369,7 @@ final class WebServer extends NanoHTTPD {
 
         try {
             final Pattern filter = Pattern.compile(filterString);
-            mConfig.updateFilters(filter, logFilter);
+            mConfig.preferences.updateFilters(filter, logFilter);
             return serveRedirect("Filters updated", "/");
         } catch (final PatternSyntaxException e) {
             return serveInvalidSettingError("filters", "Invalid filter regular expression", e);
@@ -419,13 +381,9 @@ final class WebServer extends NanoHTTPD {
     }
 
     private Response serveFilters() {
-        final Chunk chunk = mConfig.theme.makeChunk("filters");
-        chunk.put("filter", mConfig.getFilter().pattern());
-        chunk.put("log_filter", mConfig.getRawLogFilter());
-        if (mConfig.hasDefaultLogFilter()) {
-            chunk.put("log_filter_use_default", "true");
-        }
-        return new Response(chunk.toString());
+        final Preferences preferences = mConfig.preferences;
+        final String content = mConfig.renderer.renderFilterSettings(preferences);
+        return new Response(content);
     }
 
     private Response bulkDownload(final List<String> files) throws IOException {
@@ -435,16 +393,15 @@ final class WebServer extends NanoHTTPD {
             stream.putNextEntry(new ZipEntry("CatSaverLogs/"));
 
             for (final String fileName : files) {
-                final File file = new File(mConfig.logFolder, fileName);
-
+                final InputStream source = mConfig.logFiles.open(fileName);
                 final InputStream input;
                 final ZipEntry entry;
                 if (fileName.endsWith(".gz")) {
                     entry = new ZipEntry("CatSaverLogs/" + fileName.substring(0, fileName.length() - 3));
-                    input = new GZIPInputStream(new FileInputStream(file));
+                    input = new GZIPInputStream(source);
                 } else {
                     entry = new ZipEntry("CatSaverLogs/" + fileName);
-                    input = new FileInputStream(file);
+                    input = source;
                 }
                 stream.putNextEntry(entry);
                 try {
@@ -466,8 +423,7 @@ final class WebServer extends NanoHTTPD {
 
     private Response bulkDelete(final List<String> files) {
         for (final String fileName : files) {
-            final File file = new File(mConfig.logFolder, fileName);
-            file.delete();
+            mConfig.logFiles.delete(fileName);
         }
         return serveRedirect("Deleted " + files.size() + " files", "/");
     }
@@ -477,13 +433,8 @@ final class WebServer extends NanoHTTPD {
     }
 
     private Response serveInvalidSettingError(final String source, final String title, final Throwable e) {
-        final Chunk chunk = mConfig.theme.makeChunk("settings_error");
-        chunk.put("title", title);
-        chunk.put("source", source);
-        if (e != null) {
-            chunk.put("message", e.getLocalizedMessage());
-        }
-        return new Response(Response.Status.BAD_REQUEST, MIME_HTML, chunk.toString());
+        final String content = mConfig.renderer.renderSettingsError(source, title, e);
+        return new Response(Response.Status.BAD_REQUEST, MIME_HTML, content);
     }
 
     private Response serveFileDownload(final String fileName, final String mimeType, final InputStream stream) {

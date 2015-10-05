@@ -42,10 +42,8 @@ public final class RecIndicator {
         mTextView.setText("0");
         createFloatingWindow(context);
         mMainThreadHandler = new Handler();
-        config.eventBus.register(this);
-        toggleVisibility(new Events.RecordIndicatorVisibility(config.shouldShowIndicator()));
-
-        config.eventBus.register(this);
+        toggleVisibility(new Events.PreferencesUpdated(config.preferences));
+        Events.bus.register(this);
     }
 
     public void createFloatingWindow(final Context context) {
@@ -77,8 +75,8 @@ public final class RecIndicator {
     }
 
     @Subscribe
-    public void toggleVisibility(final Events.RecordIndicatorVisibility visibleValue) {
-        final int visibility = visibleValue.isVisible ? View.VISIBLE : View.GONE;
+    public void toggleVisibility(final Events.PreferencesUpdated preferences) {
+        final int visibility = preferences.preferences.shouldShowIndicator() ? View.VISIBLE : View.GONE;
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {

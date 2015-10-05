@@ -74,7 +74,7 @@ public final class PidEntry {
     /**
      * Open a new file, using the timestamp to name the file if possible.
      */
-    public PidEntry open(final File parent, final Date timestamp) throws IOException {
+    public PidEntry open(final LogFiles logFiles, final Date timestamp) throws IOException {
         if (writer.isPresent()) {
             return this;
         }
@@ -83,12 +83,7 @@ public final class PidEntry {
         final String filePrefix = String.format(Locale.ROOT, "%2$s-%1$tF-%1$tH.%1$tM.%1$tS", timestamp, safeName);
 
         // We try "xxx.html.gz", "xxx (1).html.gz", "xxx (2).html.gz", ... until a filename is free to use.
-        File path = null;
-        for (int i = 0; path == null || path.isFile(); i++) {
-            final String fileSuffix = (i != 0) ? (" (" + i + ").html.gz") : ".html.gz";
-            path = new File(parent, filePrefix + fileSuffix);
-        }
-
+        final File path = logFiles.getNewPath(filePrefix, ".html.gz");
         final Writer writer = new OutputStreamWriter(new FlushableGzipOutputStream(path), Charsets.UTF_8);
 
         return new PidEntry(pid, processName, path, writer);

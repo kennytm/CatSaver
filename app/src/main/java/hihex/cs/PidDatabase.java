@@ -38,6 +38,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/**
+ * A database of {@link PidEntry}. Each entry consists of a running process ID (pid), process name, and the filename and
+ * writer of the corresponding process.
+ */
 public final class PidDatabase {
     private static final File PROC_FILE = new File("/proc");
     private static final Pattern UNSAFE_SHELL_CHARACTERS = Pattern.compile("[^0-9a-zA-Z_@%+=:,./-]");
@@ -45,6 +49,12 @@ public final class PidDatabase {
 
     private ArrayList<PidEntry> mEntries = new ArrayList<>();
 
+    /**
+     * Finds the process name for a process ID.
+     *
+     * @param pidString The process ID, as a string (e.g. "1234").
+     * @return The process name. If the process is already dead, a dummy representation will be returned.
+     */
     private static String getProcessName(final String pidString) {
         try {
             final File file = new File("/proc/" + pidString + "/cmdline");
@@ -88,6 +98,10 @@ public final class PidDatabase {
         return "PID:" + pidString;
     }
 
+    /**
+     * Refreshes the list of running processes. If any processes are recorded but is dead after this call, the
+     * corresponding log files will be closed.
+     */
     public synchronized void refresh() {
         // Dump all running processes from /proc
         final HashMap<Integer, String> pidToProcessNames = new HashMap<>();
@@ -125,6 +139,12 @@ public final class PidDatabase {
         return (entry != null) ? entry.pid : -1;
     }
 
+    /**
+     * Find the process entry corresponding to the filename, if still recording.
+     *
+     * @param filename The name of the log file.
+     * @return The process entry.
+     */
     public synchronized Optional<PidEntry> findEntry(final String filename) {
         for (final PidEntry entry : mEntries) {
             if (entry.path.isPresent()) {
@@ -138,7 +158,8 @@ public final class PidDatabase {
     }
 
     /**
-     * Obtains the list of running processes.
+     * Obtains the list of running processes. Each item of the list is a map that can be supplied to a Chunk template
+     * for rendering.
      */
     public synchronized List<HashMap<String, String>> runningProcesses() {
         final ArrayList<PidEntry> entries = mEntries;
@@ -159,7 +180,7 @@ public final class PidDatabase {
         return Lists.transform(entries, new Function<PidEntry, HashMap<String, String>>() {
             @Override
             public HashMap<String, String> apply(final PidEntry input) {
-                final HashMap<String, String> summary = new HashMap<String, String>(3);
+                final HashMap<String, String> summary = new HashMap<>(3);
                 summary.put("pid", String.valueOf(input.pid));
                 summary.put("name", input.processName);
                 if (input.writer.isPresent()) {
@@ -170,6 +191,12 @@ public final class PidDatabase {
         });
     }
 
+    /**
+     * Finds the process ID whose name is exactly the same as the given input.
+     *
+     * @param processName The exact name of the process
+     * @return The corresponding process ID, or -1 if not found.
+     */
     public synchronized int findPidForExactProcessName(final String processName) {
         for (final PidEntry entry : mEntries) {
             if (processName.equals(entry.processName)) {
@@ -199,12 +226,16 @@ public final class PidDatabase {
         }
     }
 
+    public synchronized String getProcessName(final int pid) {
+        return getEntry(pid).get().processName;
+    }
+
     /**
      * Start recording logs for the specified pid.
      */
     public synchronized void startRecording(final int pid,
                                             final Optional<String> processName,
-                                            final File parent,
+                                            final LogFiles logFiles,
                                             final Date timestamp,
                                             final Function<PidEntry, ?> initialize) throws IOException {
         int index = getEntryIndex(pid);
@@ -217,7 +248,7 @@ public final class PidDatabase {
             return;
         }
 
-        final PidEntry newEntry = oldEntry.open(parent, timestamp);
+        final PidEntry newEntry = oldEntry.open(logFiles, timestamp);
         if (newEntry != oldEntry) {
             try {
                 initialize.apply(newEntry);

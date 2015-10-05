@@ -22,7 +22,6 @@ import android.content.res.Resources;
 import android.text.format.DateUtils;
 import android.text.format.Formatter;
 
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.x5.template.Chunk;
 import com.x5.template.ContentSource;
@@ -167,14 +166,14 @@ public final class ChunkTheme {
 
 
         /** Creates a customized Chunk theme. */
-    public static Theme create(final Context context, final EventBus eventBus) {
+    public static Theme create(final Context context) {
         final AndroidTemplates provider = new AndroidTemplates(context);
         final Theme theme = new Theme(provider);
         theme.registerFilter(new FileSizeFilter(context));
         theme.registerFilter(new RelativeTimeFilter(context));
         theme.addProtocol(new ResourceContentSource(context));
         final FaviconSource faviconSource = new FaviconSource();
-        eventBus.register(faviconSource);
+        Events.bus.register(faviconSource);
         theme.addProtocol(faviconSource);
         return theme;
     }

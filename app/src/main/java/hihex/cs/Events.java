@@ -18,7 +18,11 @@
 
 package hihex.cs;
 
+import com.google.common.eventbus.EventBus;
+
 public final class Events {
+    public static final EventBus bus = new EventBus();
+
     private Events() {
     }
 
@@ -30,11 +34,11 @@ public final class Events {
         }
     }
 
-    public static final class RecordIndicatorVisibility {
-        public final boolean isVisible;
+    public static final class PreferencesUpdated {
+        public final Preferences preferences;
 
-        public RecordIndicatorVisibility(boolean isVisible) {
-            this.isVisible = isVisible;
+        public PreferencesUpdated(final Preferences preferences) {
+            this.preferences = preferences;
         }
     }
 

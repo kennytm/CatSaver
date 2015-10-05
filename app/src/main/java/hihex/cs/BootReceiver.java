@@ -32,7 +32,7 @@ public final class BootReceiver extends BroadcastReceiver {
             return;
         }
 
-        if (!Config.shouldRunOnBoot(context)) {
+        if (!Preferences.shouldRunOnBoot(context)) {
             return;
         }
 

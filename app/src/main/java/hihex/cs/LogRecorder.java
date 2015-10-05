@@ -22,16 +22,10 @@ import android.util.Pair;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.io.Closeables;
-import com.x5.template.Chunk;
-import com.x5.template.Theme;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -39,20 +33,12 @@ import java.util.regex.Pattern;
  */
 public final class LogRecorder implements Runnable {
     private final Config mConfig;
-    private final Chunk mLogEntryChunk;
-    private final Chunk mLogAnrEntryPrefixChunk;
-    private final Chunk mLogAnrEntrySuffixChunk;
     private int[] mDebuggedPids = Config.EMPTY_PID_ARRAY;
 
     public LogRecorder(final Config config) {
         mConfig = config;
 
-        final Theme theme = config.theme;
-        mLogEntryChunk = theme.makeChunk("log#entry");
-        mLogAnrEntryPrefixChunk = theme.makeChunk("log#anr_entry_prefix");
-        mLogAnrEntrySuffixChunk = theme.makeChunk("log#anr_entry_suffix");
-
-        mConfig.eventBus.register(this);
+        Events.bus.register(this);
     }
 
     @Override
@@ -139,12 +125,13 @@ public final class LogRecorder implements Runnable {
     }
 
     private void createProcess(final LogEntry entry, final int pid, final String processName) throws IOException {
-        final Pattern filter = mConfig.getFilter();
+        final Preferences preferences = mConfig.preferences;
+        final Pattern filter = mConfig.preferences.getFilter();
         if (!filter.matcher(processName).find()) {
             return;
         }
 
-        mConfig.removeExpiredLogs();
+        mConfig.logFiles.removeExpired(preferences);
 
         final Optional<Writer> optWriter = mConfig.startRecording(pid, Optional.of(processName), entry.timestamp());
         if (optWriter.isPresent()) {
@@ -168,44 +155,10 @@ public final class LogRecorder implements Runnable {
     }
 
     private void writeLogEntry(final Writer writer, final LogEntry entry) throws IOException {
-        mLogEntryChunk.set("log_level", entry.logLevelChar());
-        mLogEntryChunk.set("date", String.format(Locale.ROOT, "%1$tH:%1$tM:%1$tS.%1$tL", entry.timestamp()));
-        mLogEntryChunk.set("tag", entry.tag());
-        mLogEntryChunk.set("message", entry.message());
-        mLogEntryChunk.set("pid", entry.pid());
-        mLogEntryChunk.set("tid", entry.tid());
-
-        mLogEntryChunk.render(writer);
+        mConfig.renderer.writeLogEntry(writer, entry);
     }
 
     private void writeAnrTraces(final Writer writer, final int pid) throws IOException {
-        mLogAnrEntryPrefixChunk.render(writer);
-        BufferedReader tracesFile = null;
-        try {
-            tracesFile = new BufferedReader(new FileReader("/data/anr/traces.txt"));
-            final String beginAnr = "----- pid " + pid + " at ";
-            final String endAnr = "----- end " + pid;
-            boolean shouldLog = false;
-
-            while (true) {
-                final String line = tracesFile.readLine();
-                if (line == null) {
-                    break;
-                }
-                if (!shouldLog && line.startsWith(beginAnr)) {
-                    shouldLog = true;
-                }
-                if (shouldLog) {
-                    writer.write(line);
-                    writer.write('\n');
-                }
-                if (shouldLog && line.startsWith(endAnr)) {
-                    shouldLog = false;
-                }
-            }
-        } finally {
-            Closeables.closeQuietly(tracesFile);
-            mLogAnrEntrySuffixChunk.render(writer);
-        }
+        mConfig.renderer.writeAnrTraces(writer, pid);
     }
 }
