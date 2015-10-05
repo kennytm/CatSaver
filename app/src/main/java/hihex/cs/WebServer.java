@@ -48,11 +48,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.zip.GZIPInputStream;
@@ -155,9 +157,37 @@ final class WebServer extends NanoHTTPD {
                     // We can't really use the map because there will be multiple "file-selector"s. But we cannot pass
                     // a HashMultimap above. So we need to parse the query string ourselves. The query string won't be
                     // available without calling parseBody() though, so the statement above still exists.
-                    final Uri params = Uri.parse("/?" + session.getQueryParameterString());
-                    final List<String> files = params.getQueryParameters("file-selector");
-                    final String action = params.getQueryParameter("action");
+
+                    final StringTokenizer tokenizer = new StringTokenizer(session.getQueryParameterString(), "&");
+                    final ArrayList<String> files = new ArrayList<>();
+                    String action = "";
+                    // We parse the string ourselves instead of using Uri.parse(), because the latter does not properly
+                    // translate '+' back to spaces.
+
+                    while (tokenizer.hasMoreTokens()) {
+                        final String token = tokenizer.nextToken();
+                        final int sep = token.indexOf('=');
+                        final String key;
+                        final String value;
+                        if (sep >= 0) {
+                            key = URLDecoder.decode(token.substring(0, sep), "UTF-8");
+                            value = URLDecoder.decode(token.substring(sep+1), "UTF-8");
+                        } else {
+                            key = URLDecoder.decode(token, "UTF-8");
+                            value = "";
+                        }
+                        switch (key) {
+                            case "file-selector":
+                                files.add(value);
+                                break;
+                            case "action":
+                                action = value;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
                     switch (action) {
                         case "delete":
                             return bulkDelete(files);
