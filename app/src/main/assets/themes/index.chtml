@@ -38,7 +38,7 @@
 {% endif %}
 <td><a href="/read/{$f.file_name|html}">{$f.file_name|html}</a>
 <td>{$f.last_modified|relative_time}
-<td>{$f.file_size|file_size}
+<td>{$f.file_size|qcalc(/1024.0)|sprintf(%.1f)} {.r.kibibytes}
 <td>
 {% if ($f.pid) %}
     <a class="command needs-confirm" data-confirm="stop,{$f.process_name|html}" href="/stop/{$f.pid}" title="{.r.hint_stop}">&#x274e;</a>

@@ -91,4 +91,8 @@
     <string name="chunk_filter_settings">过滤</string>
     <string name="chunk_settings_log_filter">过滤内容</string>
     <string name="chunk_settings_log_filter_use_default">默认值</string>
+
+    <string name="chunk_settings_split_prompt_pre">当文件大小超过</string>
+    <string name="chunk_settings_split_prompt_post">时自动分割记录</string>
+    <string name="chunk_kibibytes">KB</string>
 </resources>

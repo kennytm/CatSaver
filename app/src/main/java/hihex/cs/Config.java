@@ -59,6 +59,7 @@ public final class Config {
     public static final String SHARED_PREFS_SHOW_INDICATOR_KEY = "show_indicator";
     public static final String SHARED_PREFS_RUN_ON_BOOT_KEY = "run_on_boot";
     public static final String SHARED_PREFS_LOG_FILTER_KEY = "log_filter";
+    public static final String SHARED_PREFS_SPLIT_SIZE_KEY = "split_size";
 
     public static final int[] EMPTY_PID_ARRAY = {};
 
@@ -103,6 +104,7 @@ public final class Config {
 
     private volatile long mPurgeFilesize;
     private volatile long mPurgeDuration;
+    private volatile long mSplitSize;
 
     /**
      * The database storing all active PIDs.
@@ -130,6 +132,7 @@ public final class Config {
         mFilter = Pattern.compile(filter);
         mPurgeFilesize = sharedPreferences.getLong(SHARED_PREFS_PURGE_FILESIZE_KEY, -1);
         mPurgeDuration = sharedPreferences.getLong(SHARED_PREFS_PURGE_DURATION_KEY, -1);
+        mSplitSize = sharedPreferences.getLong(SHARED_PREFS_SPLIT_SIZE_KEY, 32768);
         readLogFilter();
 
         mLogPrefixChunk = theme.makeChunk("log#prefix");
@@ -169,6 +172,10 @@ public final class Config {
         return mPurgeFilesize;
     }
 
+    public long getSplitSize() {
+        return mSplitSize;
+    }
+
     public long getPurgeDuration() {
         return mPurgeDuration;
     }
@@ -190,9 +197,11 @@ public final class Config {
                                final long purgeFilesize,
                                final long purgeDuration,
                                final boolean shouldShowIndicator,
-                               final boolean shouldRunOnBoot) {
+                               final boolean shouldRunOnBoot,
+                               final long splitSize) {
         mFilter = filter;
         mPurgeFilesize = purgeFilesize;
+        mSplitSize = splitSize;
         mPurgeDuration = purgeDuration;
         final SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(SHARED_PREFS_FILTER_KEY, filter.pattern());
@@ -200,6 +209,7 @@ public final class Config {
         editor.putLong(SHARED_PREFS_PURGE_DURATION_KEY, purgeDuration);
         editor.putBoolean(SHARED_PREFS_SHOW_INDICATOR_KEY, shouldShowIndicator);
         editor.putBoolean(SHARED_PREFS_RUN_ON_BOOT_KEY, shouldRunOnBoot);
+        editor.putLong(SHARED_PREFS_SPLIT_SIZE_KEY, splitSize);
         editor.apply();
         removeExpiredLogs();
         eventBus.post(new Events.RecordIndicatorVisibility(shouldShowIndicator));

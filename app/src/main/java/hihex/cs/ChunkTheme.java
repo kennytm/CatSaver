@@ -52,11 +52,7 @@ public final class ChunkTheme {
         public String transformText(final Chunk chunk, final String text, final FilterArgs args) {
             try {
                 final long fileSize = Long.parseLong(text);
-                if (fileSize < 1024) {
-                    return mContext.getString(R.string.chunk_kibibytes_format, fileSize / 1024.0f);
-                } else {
-                    return Formatter.formatShortFileSize(mContext, fileSize);
-                }
+                return Formatter.formatShortFileSize(mContext, fileSize);
             } catch (final NumberFormatException e) {
                 return text;
             }

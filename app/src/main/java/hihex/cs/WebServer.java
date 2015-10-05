@@ -355,6 +355,7 @@ final class WebServer extends NanoHTTPD {
         chunk.put("filesize", String.valueOf(mConfig.getPurgeFilesize()));
         chunk.put("date", String.valueOf(mConfig.getPurgeDuration()));
         chunk.put("show_indicator", String.valueOf(mConfig.shouldShowIndicator()));
+        chunk.put("split_size", String.valueOf(mConfig.getSplitSize()));
         chunk.put("run_on_boot", String.valueOf(mConfig.shouldRunOnBoot()));
         return new Response(chunk.toString());
     }
@@ -368,6 +369,7 @@ final class WebServer extends NanoHTTPD {
             final Pattern filter = Pattern.compile(filterString);
             final long filesize;
             final long duration;
+            final long splitSize;
             final boolean shouldShowIndictor = "on".equals(parameters.get("show-indicator"));
             final boolean shouldRunOnBoot = "on".equals(parameters.get("run-on-boot"));
             if ("on".equals(parameters.get("purge-by-filesize"))) {
@@ -380,7 +382,12 @@ final class WebServer extends NanoHTTPD {
             } else {
                 duration = -1;
             }
-            mConfig.updateSettings(filter, filesize, duration, shouldShowIndictor, shouldRunOnBoot);
+            if ("on".equals(parameters.get("split-size-enabled"))) {
+                splitSize = Math.max(1, Long.parseLong(parameters.get("split-size")) * 1024);
+            } else {
+                splitSize = -1;
+            }
+            mConfig.updateSettings(filter, filesize, duration, shouldShowIndictor, shouldRunOnBoot, splitSize);
             return serveRedirect("Settings updated", "/");
         } catch (final PatternSyntaxException e) {
             return serveInvalidSettingError("settings", "Invalid filter syntax", e);

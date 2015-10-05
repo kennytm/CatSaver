@@ -47,6 +47,16 @@
     {% endif %}
     > {.r.days_ago}
 </ul>
+<p>
+    <input type=checkbox name=split-size-enabled{.if ($split_size != -1)} checked{/if}>
+    <label for=split-size-enabled>{.r.settings_split_prompt_pre}</label>
+    <input type=number name=split-size min=2 max=18014398509481983
+    {% if ($split_size == -1) %}
+        value=30 disabled
+    {% else %}
+        value="{$split_size|qcalc(/1024)}"
+    {% endif %}
+    > {.r.kibibytes} {.r.settings_split_prompt_post}
 <p><input type=checkbox name=show-indicator id=show-indicator {$show_indicator|checked(true)}>
    <label for=show-indicator>{.r.settings_show_indicator}</label>
 <p><input type=checkbox name=run-on-boot id=run-on-boot {$run_on_boot|checked(true)}>

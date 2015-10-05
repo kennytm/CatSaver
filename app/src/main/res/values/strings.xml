@@ -88,7 +88,6 @@
     <string name="chunk_java_regex">Java regex</string>
     <string name="chunk_mebibytes">MB</string>
     <string name="chunk_days_ago">days ago</string>
-    <string name="chunk_kibibytes_format">%.1fKB</string>
 
     <string name="chunk_back_to_settings">Back to settings</string>
     <string name="chunk_settings">Settings</string>
@@ -96,4 +95,8 @@
     <string name="chunk_filter_settings">Filters</string>
     <string name="chunk_settings_log_filter">Log content filter</string>
     <string name="chunk_settings_log_filter_use_default">Default</string>
+
+    <string name="chunk_settings_split_prompt_pre">Split log when file size exceeds</string>
+    <string name="chunk_settings_split_prompt_post"/>
+    <string name="chunk_kibibytes">KB</string>
 </resources>
