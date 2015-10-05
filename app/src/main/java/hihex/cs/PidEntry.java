@@ -30,6 +30,7 @@ import java.util.Locale;
 
 public final class PidEntry {
     private static final String UNSAFE_FILENAME_PATTERN = "[^-_.,;a-zA-Z0-9]";
+    private static final String CONTINUED_SUFFIX = "( \\([^)]+\\))*\\.html\\.gz$";
 
     public final int pid;
     public final String processName;
@@ -87,6 +88,19 @@ public final class PidEntry {
         final Writer writer = new OutputStreamWriter(new FlushableGzipOutputStream(path), Charsets.UTF_8);
 
         return new PidEntry(pid, processName, path, writer);
+    }
+
+    public PidEntry split(final LogFiles logFiles) throws IOException {
+        if (!writer.isPresent()) {
+            return this;
+        }
+
+        final String fileName = path.get().getName().replaceAll(CONTINUED_SUFFIX, "");
+        final File newPath = logFiles.getNewPath(fileName + " (continued)", ".html.gz");
+        final Writer newWriter = new OutputStreamWriter(new FlushableGzipOutputStream(newPath), Charsets.UTF_8);
+
+        close();
+        return new PidEntry(pid, processName, newPath, newWriter);
     }
 
     @Override

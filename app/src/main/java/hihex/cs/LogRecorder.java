@@ -75,7 +75,7 @@ public final class LogRecorder implements Runnable {
                     mDebuggedPids = writeToPids;
                 }
                 for (final int targetPid : writeToPids) {
-                    final Optional<Writer> optWriter = mConfig.getWriter(targetPid);
+                    final Optional<Writer> optWriter = mConfig.splitLogAndGetWriter(targetPid);
                     if (optWriter.isPresent()) {
                         final Writer writer = optWriter.get();
                         writeLogEntry(writer, entry);
@@ -113,7 +113,7 @@ public final class LogRecorder implements Runnable {
         }
 
         for (final int pid : mDebuggedPids) {
-            final Optional<Writer> writer = mConfig.getWriter(pid);
+            final Optional<Writer> writer = mConfig.splitLogAndGetWriter(pid);
             if (writer.isPresent()) {
                 writeLogEntry(writer.get(), entry);
             }

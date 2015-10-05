@@ -297,4 +297,16 @@ public final class PidDatabase {
         }
         return result;
     }
+
+    public synchronized PidEntry splitEntry(final int pid, final LogFiles logFiles) {
+        final int index = getEntryIndex(pid);
+        final PidEntry oldEntry = mEntries.get(index);
+        try {
+            final PidEntry newEntry = mEntries.get(index).split(logFiles);
+            mEntries.set(index, newEntry);
+            return newEntry;
+        } catch (final IOException e) {
+            return oldEntry;
+        }
+    }
 }

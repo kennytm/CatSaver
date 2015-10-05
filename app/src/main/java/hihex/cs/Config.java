@@ -124,10 +124,27 @@ public final class Config {
         Events.bus.post(new Events.RecordCount(pidDatabase.countRecordingEntries()));
     }
 
-    public Optional<Writer> getWriter(final int pid) {
-        final Optional<PidEntry> entry = pidDatabase.getEntry(pid);
-        if (entry.isPresent()) {
-            return entry.get().writer;
+    public Optional<Writer> splitLogAndGetWriter(final int pid) {
+        final Optional<PidEntry> optEntry = pidDatabase.getEntry(pid);
+        if (optEntry.isPresent()) {
+            final PidEntry entry = optEntry.get();
+            final long splitSize = preferences.getSplitSize();
+            if (splitSize >= 0 && entry.path.isPresent() && entry.path.get().length() >= splitSize) {
+                try {
+                    renderer.writeFooter(entry.writer.get());
+                } catch (final IOException e) {
+                    // Ignore.
+                }
+                final PidEntry splitEntry = pidDatabase.splitEntry(pid, logFiles);
+                try {
+                    renderer.writeHeader(splitEntry.writer.get(), splitEntry.pid, splitEntry.processName, new Date());
+                } catch (final IOException e) {
+                    // Ignore.
+                }
+                return splitEntry.writer;
+            } else {
+                return entry.writer;
+            }
         } else {
             return Optional.absent();
         }
