@@ -108,6 +108,8 @@ public final class ChunkRenderer {
         mLogEntryChunk.set("message", entry.message());
         mLogEntryChunk.set("pid", entry.pid());
         mLogEntryChunk.set("tid", entry.tid());
+        mLogEntryChunk.set("process_name", entry.getProcessName());
+        mLogEntryChunk.set("thread_name", entry.getThreadName());
 
         mLogEntryChunk.render(writer);
     }

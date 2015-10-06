@@ -23,6 +23,16 @@ if (!!window.EventSource) {
         window.scrollTo(scrollLeft, scrollHeight);
     }
 
+    function escapeHTML(s) {
+        var replacements = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+        };
+        return s.replace(/[&<>"']/g, function (m) { return replacements[m]; });
+    }
+
     var source = new EventSource('/live-events');
     source.onmessage = function (ev) {
         var isBottom = checkIsBottom();
@@ -39,9 +49,9 @@ if (!!window.EventSource) {
 
         var pidCell = row.insertCell();
         if (entry.pid === entry.tid) {
-            pidCell.innerHTML = '(' + entry.pid + ')';
+            pidCell.innerHTML = '(<span title="' + escapeHTML(entry.process) + '">' + entry.pid + '</span>)';
         } else {
-            pidCell.innerHTML = '(' + entry.pid + '/' + entry.tid + ')';
+            pidCell.innerHTML = '(<span title="' + escapeHTML(entry.process) + '">' + entry.pid + '</span>/<span title="' + escapeHTML(entry.thread) + '">' + entry.tid + '</span>)';
         }
 
         var msgCell = row.insertCell();

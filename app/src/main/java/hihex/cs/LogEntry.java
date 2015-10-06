@@ -273,11 +273,21 @@ public final class LogEntry {
         json.name("level").value(String.valueOf(logLevelChar()));
         json.name("tag").value(tag());
         json.name("msg").value(message());
+        json.name("process").value(getProcessName());
+        json.name("thread").value(getThreadName());
         json.endObject();
     }
 
     public void populateProcessName(final PidDatabase database) {
-        mPackageName = database.getProcessName(pid());
+        final int pid = pid();
+        mPackageName = database.getProcessName(pid);
+
+        final Optional<PidEntry> entry = database.getEntry(pid);
+        if (entry.isPresent()) {
+            mThreadName = entry.get().getThreadName(tid());
+        } else {
+            mThreadName = "TID:" + tid();
+        }
     }
 
     public String getProcessName() {

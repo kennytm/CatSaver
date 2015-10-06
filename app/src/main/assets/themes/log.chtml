@@ -42,7 +42,7 @@ pre { margin: 0; }
 <!DOCTYPE html>
 <meta charset="utf-8">
 {+favicon}
-<title>LogCat dump of {$process}</title>
+<title>{$process} — LogCat dump from CatSaver</title>
 <style>
 {!-- Note that the styles are inline since this page should look nice when loaded alone --}
 {+#css}
@@ -71,7 +71,7 @@ pre { margin: 0; }
 
 {#entry}
 <tr class="{$log_level}">
-<td>{$date}<td>{$log_level}/{$tag|html}<td>({$pid}{.if ($pid != $tid)}/{$tid}{/if})
+<td>{$date}<td>{$log_level}/{$tag|html}<td>({$pid}{.if ($pid != $tid)}/<span title="{$thread_name|html}">{$tid}</span>{/if})
 <td><pre>{$message|html}</pre>
 {#}
 

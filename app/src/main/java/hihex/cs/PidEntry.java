@@ -17,9 +17,12 @@
 
 package hihex.cs;
 
+import android.util.SparseArray;
+
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.io.Closeables;
+import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,19 +39,26 @@ public final class PidEntry {
     public final String processName;
     public final Optional<File> path;
     public final Optional<Writer> writer;
+    private final SparseArray<String> mThreadNames;
 
-    private PidEntry(final int pid, final String processName, final File path, final Writer writer) {
+    private PidEntry(final int pid, final String processName, final File path, final Writer writer, final SparseArray<String> threadNames) {
         this.pid = pid;
         this.processName = processName;
         this.path = Optional.of(path);
         this.writer = Optional.of(writer);
+        mThreadNames = threadNames;
     }
 
-    public PidEntry(final int pid, final String processName) {
+    private PidEntry(final int pid, final String processName, final SparseArray<String> threadNames) {
         this.pid = pid;
         this.processName = processName;
         path = Optional.absent();
         writer = Optional.absent();
+        mThreadNames = threadNames;
+    }
+
+    public PidEntry(final int pid, final String processName) {
+        this(pid, processName, new SparseArray<String>());
     }
 
     /**
@@ -69,7 +79,7 @@ public final class PidEntry {
                 }
             }
         }
-        return new PidEntry(pid, processName);
+        return new PidEntry(pid, processName, mThreadNames);
     }
 
     /**
@@ -87,7 +97,7 @@ public final class PidEntry {
         final File path = logFiles.getNewPath(filePrefix, ".html.gz");
         final Writer writer = new OutputStreamWriter(new FlushableGzipOutputStream(path), Charsets.UTF_8);
 
-        return new PidEntry(pid, processName, path, writer);
+        return new PidEntry(pid, processName, path, writer, mThreadNames);
     }
 
     public PidEntry split(final LogFiles logFiles) throws IOException {
@@ -100,7 +110,25 @@ public final class PidEntry {
         final Writer newWriter = new OutputStreamWriter(new FlushableGzipOutputStream(newPath), Charsets.UTF_8);
 
         close();
-        return new PidEntry(pid, processName, newPath, newWriter);
+        return new PidEntry(pid, processName, newPath, newWriter, mThreadNames);
+    }
+
+    public String getThreadName(final int tid) {
+        final String cachedThreadName = mThreadNames.get(tid);
+        if (cachedThreadName != null) {
+            return cachedThreadName;
+        }
+
+        final File threadNameFile = new File("/proc/" + pid + "/task/" + tid + "/comm");
+        String threadName;
+        try {
+            threadName = Files.toString(threadNameFile, Charsets.UTF_8);
+        } catch (final IOException e) {
+            threadName = "TID:" + tid;
+        }
+        mThreadNames.append(tid, threadName);
+
+        return threadName;
     }
 
     @Override
