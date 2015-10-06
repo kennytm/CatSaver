@@ -133,6 +133,10 @@ final class WebServer extends NanoHTTPD {
                 return serveSettings();
             case "/filters":
                 return serveFilters();
+            case "/live":
+                return serveLive();
+            case "/live-events":
+                return serveLiveEvents();
             case "/update-settings": {
                 try {
                     session.parseBody(new HashMap<String, String>());
@@ -446,6 +450,15 @@ final class WebServer extends NanoHTTPD {
     private Response serveFavicon() {
         final ByteArrayInputStream stream = new ByteArrayInputStream(mFaviconPng);
         return new Response(Response.Status.OK, "image/png", stream);
+    }
+
+    private Response serveLive() {
+        final String content = mConfig.renderer.renderLive();
+        return new Response(content);
+    }
+
+    private Response serveLiveEvents() {
+        return new LiveEventSource();
     }
 
     @Subscribe

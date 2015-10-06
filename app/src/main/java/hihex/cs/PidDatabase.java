@@ -227,7 +227,12 @@ public final class PidDatabase {
     }
 
     public synchronized String getProcessName(final int pid) {
-        return getEntry(pid).get().processName;
+        final int index = getEntryIndex(pid);
+        if (index >= 0) {
+            return mEntries.get(index).processName;
+        } else {
+            return getProcessName(String.valueOf(pid));
+        }
     }
 
     /**

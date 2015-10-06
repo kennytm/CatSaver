@@ -49,5 +49,13 @@ public final class Events {
             ipAddress = IpAddresses.getBestIpAddress();
         }
     }
+
+    public static final class LiveEntry {
+        public final LogEntry entry;
+
+        public LiveEntry(LogEntry entry) {
+            this.entry = entry;
+        }
+    }
 }
 

@@ -99,4 +99,8 @@
     <string name="chunk_settings_split_prompt_pre">Split log when file size exceeds</string>
     <string name="chunk_settings_split_prompt_post"/>
     <string name="chunk_kibibytes">KB</string>
+
+    <string name="chunk_browser_does_not_support_sse_warning">This browser does not support Live Logging. Please use the latest Firefox, Chrome or Safari instead.</string>
+    <string name="chunk_live">Live</string>
+    <string name="chunk_live_logging">Live Logging</string>
 </resources>

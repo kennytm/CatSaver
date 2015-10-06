@@ -18,6 +18,7 @@
 
 package hihex.cs;
 
+import android.util.JsonWriter;
 import android.util.Log;
 import android.util.Pair;
 
@@ -28,6 +29,7 @@ import com.google.common.primitives.Bytes;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
@@ -37,7 +39,7 @@ import java.util.regex.Pattern;
 /**
  * An entry reported by logcat.
  */
-final class LogEntry {
+public final class LogEntry {
     private static final byte[] SYSTEM_RESTART_PAYLOAD = "\4SystemServer\0Entered the Android system server!".getBytes(Charsets.ISO_8859_1);
     private static final byte[] DEBUGGERD_RESTART_PAYLOAD_PREFIX = "\4\0debuggerd: ".getBytes(Charsets.ISO_8859_1);
     private static final byte[] TOMBSTONE_PAYLOAD_PREFIX = "\4DEBUG\0\nTombstone written to: /data/tombstones/tombstone_".getBytes(Charsets.ISO_8859_1);
@@ -59,8 +61,8 @@ final class LogEntry {
     private static final byte[] ANR_PAYLOAD_PREFIX_ZYGOTE = "\4zygote\0Wrote stack traces to '/data/anr/traces.txt'".getBytes(Charsets.ISO_8859_1);
     private static final byte[] ANR_PAYLOAD_PREFIX_ART = "\4art\0Wrote stack traces to '/data/anr/traces.txt'".getBytes(Charsets.ISO_8859_1);
 
-    private final byte[] mSharedArray = new byte[5120];
-    private final ByteBuffer mSharedBuffer = ByteBuffer.wrap(mSharedArray).order(ByteOrder.LITTLE_ENDIAN);
+    private final byte[] mSharedArray;
+    private final ByteBuffer mSharedBuffer;
 
     private int mPid;
     private int mTid;
@@ -70,6 +72,30 @@ final class LogEntry {
     private int mTagSeparator;
     private Optional<String> mTag = Optional.absent();
     private Optional<String> mMessage = Optional.absent();
+
+    private String mPackageName = "[unknown package]";
+    private String mThreadName = "[unknown thread]";
+
+    public LogEntry() {
+        mSharedArray = new byte[5120];
+        mSharedBuffer = ByteBuffer.wrap(mSharedArray).order(ByteOrder.LITTLE_ENDIAN);
+    }
+
+    public LogEntry(final LogEntry entry) {
+        mSharedArray = new byte[] {entry.mSharedArray[0]};
+        mSharedBuffer = null;
+        mTag = Optional.of(entry.tag());
+        mMessage = Optional.of(entry.message());
+
+        mPid = entry.mPid;
+        mTid = entry.mTid;
+        mSec = entry.mSec;
+        mNSec = entry.mNSec;
+        mPayloadLength = entry.mPayloadLength;
+        mTagSeparator = entry.mTagSeparator;
+        mPackageName = entry.mPackageName;
+        mThreadName = entry.mThreadName;
+    }
 
     /**
      * Replace the current entry with the content of the input stream.
@@ -236,5 +262,29 @@ final class LogEntry {
 
     public boolean isJniCrashLogEnded() {
         return payloadStartsWith(TOMBSTONE_PAYLOAD_PREFIX) || payloadStartsWith(CODE_AROUND_PC_PREFIX);
+    }
+
+    public void writeJSON(final Writer writer) throws IOException {
+        final JsonWriter json = new JsonWriter(writer);
+        json.beginObject();
+        json.name("pid").value(mPid);
+        json.name("tid").value(mTid);
+        json.name("time").value(mSec * 1000L + mNSec / 1_000_000L);
+        json.name("level").value(String.valueOf(logLevelChar()));
+        json.name("tag").value(tag());
+        json.name("msg").value(message());
+        json.endObject();
+    }
+
+    public void populateProcessName(final PidDatabase database) {
+        mPackageName = database.getProcessName(pid());
+    }
+
+    public String getProcessName() {
+        return mPackageName;
+    }
+
+    public String getThreadName() {
+        return mThreadName;
     }
 }

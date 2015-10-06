@@ -206,4 +206,9 @@ public final class ChunkRenderer {
         }
         return chunk.toString();
     }
+
+    public String renderLive() {
+        final Chunk chunk = mTheme.makeChunk("live");
+        return chunk.toString();
+    }
 }

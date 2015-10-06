@@ -22,7 +22,8 @@
 <link rel="stylesheet" type="text/css" href="/static/styles.css">
 <p>
 <a href="/settings"><span class=command>&#x2699;</span> {.r.settings}</a> &mdash;
-<a href="/filters"><span class=command>&#x2614;</span> {.r.filter_settings}</a>
+<a href="/filters"><span class=command>&#x2614;</span> {.r.filter_settings}</a> &mdash;
+<a href="/live"><span class="command live-animation">&#x25cf;</span> {.r.live}</a>
 <hr>
 <h2>{.r.log_files}</h2>
 <form action="/bulk" method=post>

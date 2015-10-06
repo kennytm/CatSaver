@@ -30,6 +30,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 public final class LogEntryFilter {
+    public static final String LIVE_SOURCE = "\0$live";
+
     private static final Pattern UNIVERSAL_PATTERN = Pattern.compile("\\A");
 
     private final Entry[] ignores;
@@ -40,7 +42,6 @@ public final class LogEntryFilter {
         this.ignores = ignores;
         this.snatches = snatches;
     }
-
 
     public static LogEntryFilter parse(final String source) throws IllegalStateException, PatternSyntaxException {
         final RawFilter filter = new Toml().parse(source).to(RawFilter.class);
@@ -72,6 +73,7 @@ public final class LogEntryFilter {
         if (targets.contains(source)) {
             snatched.add(source);
         }
+        snatched.add(LIVE_SOURCE);
         final HashSet<String> ignored = match(ignores, entry, source, snatched);
         snatched.removeAll(ignored);
         return snatched;

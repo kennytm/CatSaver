@@ -70,7 +70,7 @@ public final class LogRecorder implements Runnable {
                     handleDebuggerdLog(entry);
                 }
 
-                final int[] writeToPids = mConfig.getFilteredPidsForLog(entry, pid);
+                final int[] writeToPids = mConfig.getFilteredPidsForLog(entry);
                 if (entry.isJniCrash()) {
                     mDebuggedPids = writeToPids;
                 }
@@ -86,6 +86,11 @@ public final class LogRecorder implements Runnable {
                             }
                         }
                     }
+                }
+                if (writeToPids != Config.EMPTY_PID_ARRAY) {
+                    // Note that getFilteredPidsForLog() returns EMPTY_PID_ARRAY_LIVE_ALLOWED if live logging is
+                    // possible for this entry. Only when the entry is filtered out it will return EMPTY_PID_ARRAY.
+                    Events.bus.post(new Events.LiveEntry(entry));
                 }
             }
 

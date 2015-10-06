@@ -16,13 +16,7 @@
   -
   --}
 
-{#prefix}
-<!DOCTYPE html>
-<meta charset="utf-8">
-{+favicon}
-<title>LogCat dump of {$process}</title>
-<style>
-{!-- Note that the styles are inline since this page should look nice when loaded alone --}
+{#css}
 body { font-family: sans-serif; }
 span[title] { text-decoration: underline; text-decoration-style: dotted; }
 table { width: 100%; table-layout: fixed; border-collapse: collapse; }
@@ -42,6 +36,16 @@ pre { margin: 0; }
 .D { color: #060; }
 .V { color: #999; }
 .embed pre { margin: 1em; border: 1px dashed #ccc; padding: 5px; background: #ffe; }
+{#}
+
+{#prefix}
+<!DOCTYPE html>
+<meta charset="utf-8">
+{+favicon}
+<title>LogCat dump of {$process}</title>
+<style>
+{!-- Note that the styles are inline since this page should look nice when loaded alone --}
+{+#css}
 </style>
 <table id=metadata>
 <tr><th>{.r.start_time}<td>{$date}

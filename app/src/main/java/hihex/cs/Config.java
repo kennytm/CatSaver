@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
  */
 public final class Config {
     public static final int[] EMPTY_PID_ARRAY = {};
+    public static final int[] EMPTY_PID_ARRAY_LIVE_ALLOWED = {};
 
     public final Context context;
 
@@ -182,17 +183,30 @@ public final class Config {
         }
     }
 
-    public int[] getFilteredPidsForLog(final LogEntry entry, final int sourcePid) {
-        final Optional<PidEntry> sourcePidEntry = pidDatabase.getEntry(sourcePid);
-        if (!sourcePidEntry.isPresent()) {
-            return EMPTY_PID_ARRAY;
-        }
+    /**
+     * Obtains the array of concrete process IDs that should record this log entry.
+     *
+     * @param entry The entry to be recorded.
+     * @return The array of process IDs to record this entry. If this array is empty, there are two possible return
+     * values:
+     * <ul>
+     * <li>{@link #EMPTY_PID_ARRAY} — no processes should record this entry at all</li>
+     * <li>{@link #EMPTY_PID_ARRAY_LIVE_ALLOWED} — no processes need to record this entry, but this entry may be used in
+     * live logging.</li>
+     * </ul>
+     */
+    public int[] getFilteredPidsForLog(final LogEntry entry) {
+        entry.populateProcessName(pidDatabase);
 
-        final String source = sourcePidEntry.get().processName;
+        final String source = entry.getProcessName();
         final Set<String> targets = pidDatabase.listRecordingProcessNames();
         final HashSet<String> filtered = preferences.getLogFilter().filter(entry, source, targets);
         if (filtered.isEmpty()) {
             return EMPTY_PID_ARRAY;
+        }
+        targets.remove(LogEntryFilter.LIVE_SOURCE);
+        if (filtered.isEmpty()) {
+            return EMPTY_PID_ARRAY_LIVE_ALLOWED;
         }
 
         final int[] pids = new int[filtered.size()];
@@ -200,7 +214,7 @@ public final class Config {
         for (final String target : filtered) {
             final int targetPid;
             if (target.equals(source)) {
-                targetPid = sourcePid;
+                targetPid = entry.pid();
             } else {
                 targetPid = pidDatabase.findPidForExactProcessName(target);
             }

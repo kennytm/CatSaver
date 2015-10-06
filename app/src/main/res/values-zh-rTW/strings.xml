@@ -94,4 +94,8 @@
     <string name="chunk_settings_split_prompt_pre">當檔案大小超過</string>
     <string name="chunk_settings_split_prompt_post">時自動分割記錄</string>
     <string name="chunk_kibibytes">KB</string>
+
+    <string name="chunk_browser_does_not_support_sse_warning">此瀏覽器不支援即時記錄。請轉用最新版的Firefox、Chrome或Safari。</string>
+    <string name="chunk_live">即時</string>
+    <string name="chunk_live_logging">即時記錄</string>
 </resources>
