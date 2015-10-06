@@ -391,7 +391,7 @@ final class WebServer extends NanoHTTPD {
     }
 
     private Response bulkDownload(final List<String> files) throws IOException {
-        final File zipFile = File.createTempFile("CatSaverLogs", "zip");
+        final File zipFile = File.createTempFile("CatSaverLogs", ".zip");
         try {
             final ZipOutputStream stream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
             stream.putNextEntry(new ZipEntry("CatSaverLogs/"));
@@ -419,7 +419,7 @@ final class WebServer extends NanoHTTPD {
             stream.close();
 
             final FileInputStream result = new FileInputStream(zipFile);
-            return serveFileDownload("CatSaverLogs.zip", "application/zip", result);
+            return serveFileDownload(zipFile.getName(), "application/zip", result);
         } finally {
             zipFile.delete();
         }
