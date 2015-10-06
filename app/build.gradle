@@ -63,7 +63,7 @@ model {
         }
         release {
             minifyEnabled = true
-            proguardFiles += 'proguard-rules.pro'
+            proguardFiles += file('proguard-rules.pro')
             signingConfig = aosp
         }
     }

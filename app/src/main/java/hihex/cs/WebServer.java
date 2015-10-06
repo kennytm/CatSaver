@@ -112,6 +112,8 @@ final class WebServer extends NanoHTTPD {
                     return "application/font-sfnt";
                 case "css":
                     return "text/css";
+                case "js":
+                    return "text/javascript";
                 default:
                     break;
             }

@@ -5,7 +5,7 @@
 
 -keepattributes RuntimeVisibleAnnotations #,SourceFile,LineNumberTable
 
--keepclassmembers,allowobfuscation class * {
+-keepclassmembers,allowobfuscation,includedescriptorclasses class * {
     @com.google.common.eventbus.Subscribe public void *(**);
 }
 
@@ -13,6 +13,15 @@
     *** check*(...);
 }
 # ^ no need to perform the conservative checks in release mode... (this saves ~3 KB)
+
+-keepclassmembernames class com.google.common.cache.Striped64 {
+    long base;
+    int busy;
+}
+
+-keepclassmembernames class com.google.common.cache.Striped64$Cell {
+    long value;
+}
 
 ###### Chunk
 
