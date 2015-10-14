@@ -59,6 +59,7 @@ model {
     android.buildTypes {
         debug {
             versionNameSuffix = "-alpha"
+            signingConfig = aosp
             //testCoverageEnabled = true
         }
         release {
