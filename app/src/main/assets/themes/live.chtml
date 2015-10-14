@@ -29,6 +29,7 @@
 <th>{.r.time}<th>{.r.level}/{.r.tag}<th>(PID/TID)<th>{.r.message}
 <tbody id=body>
 </table>
+<p><input type=checkbox id=pause><label for=pause>{.r.pause}</label>
 <script>
 var errorMessages = {
     tooOld: '{.r.browser_does_not_support_sse_warning}',

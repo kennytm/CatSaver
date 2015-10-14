@@ -98,4 +98,5 @@
     <string name="chunk_browser_does_not_support_sse_warning">此瀏覽器不支援即時記錄。請轉用最新版的Firefox、Chrome或Safari。</string>
     <string name="chunk_live">即時</string>
     <string name="chunk_live_logging">即時記錄</string>
+    <string name="chunk_pause">暫停</string>
 </resources>

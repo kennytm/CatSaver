@@ -103,4 +103,5 @@
     <string name="chunk_browser_does_not_support_sse_warning">This browser does not support Live Logging. Please use the latest Firefox, Chrome or Safari instead.</string>
     <string name="chunk_live">Live</string>
     <string name="chunk_live_logging">Live Logging</string>
+    <string name="chunk_pause">Pause</string>
 </resources>

@@ -34,7 +34,12 @@ if (!!window.EventSource) {
     }
 
     var source = new EventSource('/live-events');
+    var pauseButton = document.getElementById('pause');
     source.onmessage = function (ev) {
+        if (pauseButton.checked) {
+            return;
+        }
+
         var isBottom = checkIsBottom();
         var entry = JSON.parse(ev.data);
 
