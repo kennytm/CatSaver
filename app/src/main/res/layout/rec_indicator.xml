@@ -19,21 +19,12 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/rec_bg"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:alpha="0.4"
-        android:background="@color/rec_off">
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rec_bg"
+                android:alpha="0.4"
+                android:background="@color/rec_off">
 
         <ImageView
             android:id="@+id/rec_icon"
@@ -56,7 +47,7 @@
             android:layout_toRightOf="@id/rec_icon"
             android:layout_toEndOf="@id/rec_icon"
             android:singleLine="true"
-            android:text="0"
+            tools:text="0"
             android:layout_alignTop="@id/rec_icon"
             android:layout_alignBottom="@id/rec_icon"
             android:paddingLeft="6dp"
@@ -73,14 +64,10 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:singleLine="true"
-            android:text="255.255.255.255"
+            tools:text="255.255.255.255"
             android:textStyle="bold"
             android:paddingLeft="3dp"
             android:paddingRight="3dp"
             android:paddingEnd="3dp"/>
 
-    </RelativeLayout>
-
-    <!--
--->
 </RelativeLayout>

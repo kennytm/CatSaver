@@ -16,8 +16,10 @@ package hihex.cs;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.os.Handler;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -48,15 +50,21 @@ public final class RecIndicator {
 
     public void createFloatingWindow(final Context context) {
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_TOAST,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE |
                         WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED |
                         WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                 PixelFormat.TRANSLUCENT);
+
+        final Resources res = context.getResources();
+
         params.setTitle("CatSaver indicator");
+        params.gravity = Gravity.START | Gravity.TOP;
+        params.x = res.getDimensionPixelOffset(R.dimen.rec_indicator_offset_x);
+        params.y = res.getDimensionPixelOffset(R.dimen.rec_indicator_offset_y);
 
         final WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         manager.addView(mRootView, params);
