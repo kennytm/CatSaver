@@ -33,6 +33,8 @@ if (!!window.EventSource) {
         return s.replace(/[&<>"']/g, function (m) { return replacements[m]; });
     }
 
+    var maxRowsCount = 600;
+
     var source = new EventSource('/live-events');
     var pauseButton = document.getElementById('pause');
     source.onmessage = function (ev) {
@@ -41,6 +43,10 @@ if (!!window.EventSource) {
         }
 
         var isBottom = checkIsBottom();
+        if (!isBottom && tbody.rows.length >= maxRowsCount) {
+            return;
+        }
+
         var entry = JSON.parse(ev.data);
 
         var row = tbody.insertRow();
@@ -63,6 +69,10 @@ if (!!window.EventSource) {
         var preTag = document.createElement('pre');
         preTag.textContent = entry.msg;
         msgCell.appendChild(preTag);
+
+        if (tbody.rows.length > maxRowsCount) {
+            tbody.deleteRow(0);
+        }
 
         if (isBottom) {
             scrollToBottom();
