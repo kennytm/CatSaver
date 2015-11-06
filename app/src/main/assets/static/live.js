@@ -10,19 +10,6 @@ if (!!window.EventSource) {
         return hours + ':' + minutes + ':' + seconds + '.' + ms;
     }
 
-    // Ref: Check if we are at bottom using http://stackoverflow.com/a/22394544/224671
-    function checkIsBottom() {
-        var scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
-        var scrollHeight = (document.documentElement && document.documentElement.scrollHeight) || document.body.scrollHeight;
-        return (scrollTop + window.innerHeight) >= scrollHeight;
-    }
-
-    function scrollToBottom() {
-        var scrollHeight = (document.documentElement && document.documentElement.scrollHeight) || document.body.scrollHeight;
-        var scrollLeft = (document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft;
-        window.scrollTo(scrollLeft, scrollHeight);
-    }
-
     function escapeHTML(s) {
         var replacements = {
             '&': '&amp;',
@@ -33,57 +20,74 @@ if (!!window.EventSource) {
         return s.replace(/[&<>"']/g, function (m) { return replacements[m]; });
     }
 
-    var maxRowsCount = 600;
-
     var source = new EventSource('/live-events');
-    var pauseButton = document.getElementById('pause');
+
+    var pendingLogs = [];
+
+    var tbody = document.getElementById('body');
+
+    var msgRow = document.getElementById('last-message');
+    var timeField = document.getElementById('last-message-time');
+    var tagField = document.getElementById('last-message-tag');
+    var pidField = document.getElementById('last-message-pid');
+    var msgField = document.getElementById('last-message-message');
+    var pendingMessagesCell = document.getElementById('ignoring-live');
+    var pendingMessagesCount = document.getElementById('pending-msg-count');
+
     source.onmessage = function (ev) {
-        if (pauseButton.checked) {
-            return;
-        }
-
-        var isBottom = checkIsBottom();
-        if (!isBottom && tbody.rows.length >= maxRowsCount) {
-            return;
-        }
-
         var entry = JSON.parse(ev.data);
 
-        var row = tbody.insertRow();
-        row.className = entry.level;
+        pendingLogs.push(entry);
 
-        var dateCell = row.insertCell();
-        dateCell.innerHTML = formatTime(entry.time);
-
-        var tagCell = row.insertCell();
-        tagCell.innerHTML = entry.level + '/' + entry.tag;
-
-        var pidCell = row.insertCell();
+        msgRow.className = entry.level;
+        timeField.innerHTML = formatTime(entry.time);
+        tagField.innerHTML = entry.level + '/' + entry.tag;
         if (entry.pid === entry.tid) {
-            pidCell.innerHTML = '(<span title="' + escapeHTML(entry.process) + '">' + entry.pid + '</span>)';
+            pidField.innerHTML = '(<span title="' + escapeHTML(entry.process) + '">' + entry.pid + '</span>)';
         } else {
-            pidCell.innerHTML = '(<span title="' + escapeHTML(entry.process) + '">' + entry.pid + '</span>/<span title="' + escapeHTML(entry.thread) + '">' + entry.tid + '</span>)';
+            pidField.innerHTML = '(<span title="' + escapeHTML(entry.process) + '">' + entry.pid + '</span>/<span title="' + escapeHTML(entry.thread) + '">' + entry.tid + '</span>)';
         }
+        msgField.textContent = entry.msg;
 
-        var msgCell = row.insertCell();
-        var preTag = document.createElement('pre');
-        preTag.textContent = entry.msg;
-        msgCell.appendChild(preTag);
-
-        if (tbody.rows.length > maxRowsCount) {
-            tbody.deleteRow(0);
-        }
-
-        if (isBottom) {
-            scrollToBottom();
-        }
+        pendingMessagesCount.innerHTML = pendingLogs.length;
     }
+
+    pendingMessagesCell.addEventListener('click', function (e) {
+        var oldPendingLogs = pendingLogs;
+        pendingLogs = [];
+
+        var newHTML = [];
+        for (var i = 0; i < oldPendingLogs.length; ++ i) {
+            var entry = oldPendingLogs[i];
+            newHTML.push('<tr class=');
+            newHTML.push(entry.level);
+            newHTML.push('><td>');
+            newHTML.push(formatTime(entry.time));
+            newHTML.push('<td>');
+            newHTML.push(entry.level);
+            newHTML.push('/');
+            newHTML.push(entry.tag);
+            newHTML.push('<td>(<span title="');
+            newHTML.push(escapeHTML(entry.process));
+            newHTML.push('">');
+            newHTML.push(entry.pid);
+            if (entry.pid !== entry.tid) {
+                newHTML.push('</span>/<span title="');
+                newHTML.push(escapeHTML(entry.thread));
+                newHTML.push('">');
+                newHTML.push(entry.tid);
+            }
+            newHTML.push('</span>)<td><pre>');
+            newHTML.push(escapeHTML(entry.msg));
+            newHTML.push('</pre>')
+        }
+
+        tbody.innerHTML += newHTML.join('');
+    });
 
 } else {
     // Browser is too old to support server-sent events. For now, we abort the operation.
-    var row = tbody.insertRow();
-    var cell = row.insertCell();
-    cell.rowSpan = 4;
-    cell.innerHTML = errorMessages.tooOld;
+    var cell = document.getElementById('ignoring-live');
+    cell.innerHTML = messages.tooOld;
 }
 

@@ -28,10 +28,17 @@
 <thead><tr>
 <th>{.r.time}<th>{.r.level}/{.r.tag}<th>(PID/TID)<th>{.r.message}
 <tbody id=body>
+<tfoot>
+<tr>
+<td colspan=4 id=ignoring-live>({.r.ignoring_live_message_prefix} <span id=pending-msg-count>0</span> {.r.ignoring_live_message_suffix})
+<tr id=last-message>
+<td id=last-message-time>
+<td id=last-message-tag>
+<td id=last-message-pid>
+<td><pre id=last-message-message></pre>
 </table>
-<p><input type=checkbox id=pause><label for=pause>{.r.pause}</label>
 <script>
-var errorMessages = {
+var messages = {
     tooOld: '{.r.browser_does_not_support_sse_warning}',
 }
 </script>

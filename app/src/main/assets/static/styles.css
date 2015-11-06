@@ -22,3 +22,5 @@ textarea[name=log-filters] { width: 90%; }
 
 .live-animation { color: #f00; animation: live-animation 5s linear infinite; }
 @keyframes live-animation { 10% { color: #803; } 100% { color: #803; }}
+
+#ignoring-live { background: #ccc; cursor: pointer; font-style: italic; }
