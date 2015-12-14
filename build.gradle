@@ -5,8 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        // TODO switch to 0.4.0-alpha3 when it is released.
-        classpath 'com.android.tools.build:gradle-experimental:0.3.0-alpha7'
+        classpath 'com.android.tools.build:gradle-experimental:0.6.0-alpha3'
     }
 }
 

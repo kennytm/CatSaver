@@ -23,8 +23,6 @@ targetCompatibility = 1.7
 
 model {
     // Workaround https://code.google.com/p/android/issues/detail?id=182249#c1.
-    def aosp
-
     android {
         compileSdkVersion = 23
         buildToolsVersion = '23.0.1'
@@ -38,34 +36,38 @@ model {
         }
     }
     android.signingConfigs {
-        create('aosp') {
+        debug {
             // Keystore constructed using http://stackoverflow.com/a/14035885/
             storeFile = file("aosp.keystore")
             storePassword = "android"
             storeType = "JKS"
             keyAlias = "platform"
             keyPassword = "android"
-            aosp = it
+        }
+        create('release') {
+            storeFile = file("aosp.keystore")
+            storePassword = "android"
+            storeType = "JKS"
+            keyAlias = "platform"
+            keyPassword = "android"
         }
     }
 
     android.ndk {
         moduleName = 'catsaver'
-        ldLibs += 'z'
-        CFlags += ['-Wno-pointer-to-int-cast', '-Wno-int-to-pointer-cast']
-        abiFilters += ['armeabi', 'x86']
+        ldLibs.add 'z'
+        CFlags.addAll(['-Wno-pointer-to-int-cast', '-Wno-int-to-pointer-cast'])
+        abiFilters.addAll(['armeabi', 'x86'])
     }
 
     android.buildTypes {
         debug {
             versionNameSuffix = "-alpha"
-            signingConfig = aosp
-            //testCoverageEnabled = true
+            testCoverageEnabled = true
         }
         release {
             minifyEnabled = true
-            proguardFiles += file('proguard-rules.pro')
-            signingConfig = aosp
+            proguardFiles.add file('proguard-rules.pro')
         }
     }
 }
